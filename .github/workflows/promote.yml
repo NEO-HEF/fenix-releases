@@ -1,0 +1,39 @@
+name: Promote channels from manifest
+
+# Promote workflow — publikuje channel tagy (RZP-alpha, RZP-beta, RZP-prod)
+# podle release-manifest.json. Spouští se při změně manifestu na main (typicky
+# po merge PR, kterým release manager promotuje verzi mezi kanály).
+#
+# NEPODEPISUJE — MSIX je už podepsaný v immutable version tagu. Proto běží na
+# GitHub-hosted runneru bez přístupu na Asseco LAN/devcert.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - release-manifest.json
+  workflow_dispatch:        # umožní ruční spuštění z Actions UI
+
+permissions:
+  contents: write           # nutné pro gh release create/upload
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate manifest against schema
+        run: |
+          npm install -g ajv-cli ajv-formats
+          ajv validate -c ajv-formats \
+            -s schema/release-manifest.schema.json \
+            -d release-manifest.json
+
+      - name: Promote channels
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./scripts/Promote-FromManifest.ps1 -Repo "${{ github.repository }}" -ManifestPath ./release-manifest.json

@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NEO-HEF/fenix-releases/schema/release-manifest.schema.json",
+  "title": "NEO_HEF Release Manifest",
+  "description": "Single source of truth pro verze NEO_HEF modulů per release kanál. Promote workflow (.github/workflows/promote.yml) čte tento soubor a publikuje channel tagy z immutable version tagů. Pouze moduly se samostatným .exe (RZP, UCV, ...). SPOL ne — je bundled DLL v každém modulu.",
+  "type": "object",
+  "required": ["modules"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "modules": {
+      "type": "object",
+      "description": "Klíč = krátké jméno modulu (3-10 velkých písmen, např. 'RZP').",
+      "patternProperties": {
+        "^[A-Z][A-Z0-9]{1,9}$": { "$ref": "#/definitions/module" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "module": {
+      "type": "object",
+      "required": ["packageIdentityName", "publisher", "channels"],
+      "additionalProperties": false,
+      "properties": {
+        "packageIdentityName": {
+          "type": "string",
+          "pattern": "^Asseco\\.Fenix\\.[A-Z][A-Z0-9]{1,9}$",
+          "description": "MSIX Package Identity Name (Package.appxmanifest <Identity Name>). Navždy uzamčené."
+        },
+        "publisher": {
+          "type": "string",
+          "description": "Subject DN code-signing certu (Package.appxmanifest <Identity Publisher>). Musí 1:1 odpovídat certu na Asseco signing serveru."
+        },
+        "architecture": {
+          "type": "string",
+          "enum": ["x64", "x86", "arm64", "neutral"],
+          "default": "x64"
+        },
+        "channels": {
+          "type": "object",
+          "description": "alpha/beta/prod. Prázdný objekt {} = kanál založen ale modul tam zatím není publikovaný.",
+          "propertyNames": { "enum": ["alpha", "beta", "prod"] },
+          "additionalProperties": { "$ref": "#/definitions/releaseEntry" }
+        }
+      }
+    },
+    "releaseEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+\\.\\d+$",
+          "description": "MSIX 4-part version. Musí existovat odpovídající immutable version tag <Module>-v<version> s podepsaným MSIX. Promote workflow z něj kopíruje na channel tag."
+        },
+        "releaseNotesUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}
