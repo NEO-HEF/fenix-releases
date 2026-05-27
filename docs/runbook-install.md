@@ -2,6 +2,11 @@
 
 ## Instalace
 
+### Nejjednodušší — instalační stránka
+
+Otevři **<https://neo-hef.github.io/fenix-releases/>**, vyber modul + kanál a klikni **Instalovat**.
+Stránka nabízí i fallback (stáhnout `.appinstaller` + dvojklik) a PowerShell příkaz.
+
 ### Varianta A — PowerShell (spolehlivá)
 
 ```powershell
