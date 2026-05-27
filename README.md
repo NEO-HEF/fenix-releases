@@ -2,6 +2,8 @@
 
 MSIX distribuční feed pro migrované moduly **NEO_HEF** (Fenix .NET). Distribuce přes **GitHub Releases** + Windows **AppInstaller** auto-update.
 
+> **📦 Instalační stránka pro uživatele: <https://neo-hef.github.io/fenix-releases/>**
+
 > Tohle repo je **čistě distribuční feed** — žádný zdrojový kód NEO_HEF. Zdroj je v Azure DevOps. Sem patří jen `release-manifest.json`, promote workflow, runbooky a release assety (`.msix` + `.appinstaller`, visí na releasech, ne v gitu).
 
 ## Jak to funguje
