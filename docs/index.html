@@ -152,6 +152,7 @@
     padding: 12px 16px; border-radius: 6px; margin: 16px 0;
   }
   .prose ol li { margin-bottom: 6px; }
+  .prose .muted-note { color: var(--muted); font-size: 0.88rem; }
 
   #status { text-align: center; color: var(--muted); padding: 30px; }
   #status.err { color: #b3261e; }
@@ -233,14 +234,25 @@
       aktualizuje, pokud je k dispozici novější verze.</li>
     </ol>
 
-    <h3>Výběr výchozí aplikace pro <code>.appinstaller</code></h3>
-    <p>Pokud po dvojkliku Windows neví, čím soubor otevřít, nebo ho otevře špatná aplikace:</p>
+    <h3>Dvojklik hlásí chybu — přípona <code>.appinstaller</code> není přiřazená</h3>
+    <div class="note">
+      <strong>Příznak:</strong> dvojklik na stažený soubor (např. <code>RZP.appinstaller</code>)
+      skončí nepopisnou chybou typu <em>„Aplikaci RZP nelze otevřít"</em>. Windows neví, že soubor
+      má otevřít App Installer — přípona <code>.appinstaller</code> u vás zatím není přiřazená
+      k Instalační službě aplikací (App Installer). Dvojklik proto nefunguje.
+    </div>
+    <p><strong>Řešení</strong> — soubor otevřete ručně přes App Installer:</p>
     <ol>
       <li>Klikněte na stažený soubor <strong>pravým tlačítkem</strong> → <strong>Otevřít v
-      programu</strong> → <strong>Zvolit jinou aplikaci</strong>.</li>
-      <li>Vyberte <strong>App Installer</strong> (Instalační služba aplikací).</li>
-      <li>Volitelně zaškrtněte <em>Vždy používat tuto aplikaci</em> a potvrďte.</li>
+      programu</strong> (angl. <em>Open with</em>) → <strong>Zvolit jinou aplikaci</strong>.</li>
+      <li>Vyberte <strong>App Installer</strong> (Instalační služba aplikací). Pokud není vidět,
+      rozbalte <em>Více aplikací</em>.</li>
+      <li>Volitelně zaškrtněte <em>Vždy používat tuto aplikaci pro otevírání souborů .appinstaller</em>
+      — od té chvíle bude dvojklik fungovat napřímo.</li>
+      <li>Potvrďte a v okně App Installeru klikněte <strong>Instalovat</strong>.</li>
     </ol>
+    <p class="muted-note">Tip: pokud chcete instalaci bez řešení asociací úplně obejít, použijte
+    tlačítko <strong>PS instalace</strong> v tabulce a vložte příkaz do PowerShellu.</p>
 
     <h3>Přechod mezi kanály</h3>
     <p>Na jednom počítači je nainstalovaná vždy <strong>jen jedna verze</strong> daného modulu —
