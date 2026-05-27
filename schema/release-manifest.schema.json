@@ -20,9 +20,13 @@
   "definitions": {
     "module": {
       "type": "object",
-      "required": ["packageIdentityName", "publisher", "channels"],
+      "required": ["displayName", "packageIdentityName", "publisher", "channels"],
       "additionalProperties": false,
       "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Dlouhý český název modulu (např. 'Rozpočet' pro RZP). Zobrazuje se na install stránce."
+        },
         "packageIdentityName": {
           "type": "string",
           "pattern": "^Asseco\\.Fenix\\.[A-Z][A-Z0-9]{1,9}$",

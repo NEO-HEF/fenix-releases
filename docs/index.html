@@ -28,108 +28,129 @@
   header {
     background: linear-gradient(135deg, var(--brand), var(--brand-dark));
     color: #fff;
-    padding: 36px 24px;
+    padding: 30px 24px 22px;
     text-align: center;
   }
-  header h1 { margin: 0 0 6px; font-size: 1.9rem; }
-  header p { margin: 0; opacity: 0.9; }
-  main { max-width: 920px; margin: 0 auto; padding: 24px; }
-  .intro {
-    background: #eaf2fb;
+  header h1 { margin: 0 0 6px; font-size: 1.8rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+  main { max-width: 1000px; margin: 0 auto; padding: 0 24px 24px; }
+
+  /* Tabs */
+  nav.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--brand-dark);
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav.tabs button {
+    background: transparent;
+    border: none;
+    color: #cdd9e5;
+    padding: 13px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  nav.tabs button:hover { color: #fff; }
+  nav.tabs button.active {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+
+  .panel { display: none; padding-top: 26px; }
+  .panel.active { display: block; }
+
+  .channel-desc {
     border-left: 4px solid var(--brand);
+    background: #eaf2fb;
     padding: 14px 18px;
     border-radius: 6px;
-    margin-bottom: 26px;
-    font-size: 0.95rem;
+    margin-bottom: 22px;
   }
-  .modules { display: grid; gap: 18px; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px 22px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .card-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 4px;
-  }
-  .card-head h2 { margin: 0; font-size: 1.35rem; }
+  .channel-desc.alpha { border-left-color: var(--alpha); background: #fbf6e9; }
+  .channel-desc.beta  { border-left-color: var(--beta);  background: #f3effa; }
+  .channel-desc.prod  { border-left-color: var(--prod);  background: #ebf6ee; }
+  .channel-desc h2 { margin: 0 0 6px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+  .channel-desc p { margin: 0; font-size: 0.93rem; }
   .badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    color: #fff;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 3px 9px; border-radius: 999px; color: #fff;
   }
   .badge.alpha { background: var(--alpha); }
   .badge.beta  { background: var(--beta); }
   .badge.prod  { background: var(--prod); }
-  .version { color: var(--muted); font-size: 0.9rem; margin-bottom: 14px; }
-  .version code { background: #eef1f5; padding: 1px 6px; border-radius: 4px; }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-  .btn {
-    display: inline-block;
-    background: var(--brand);
-    color: #fff;
-    text-decoration: none;
-    padding: 9px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border: none;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn:hover { background: var(--brand-dark); }
-  .btn.secondary {
-    background: #fff;
-    color: var(--brand);
-    border: 1px solid var(--brand);
-  }
-  .btn.secondary:hover { background: #eaf2fb; }
-  details { margin-top: 12px; }
-  details summary {
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 0.88rem;
-    user-select: none;
-  }
-  details pre {
-    background: #1f2933;
-    color: #e6edf3;
-    padding: 12px 14px;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-size: 0.85rem;
-    margin: 10px 0 0;
-  }
-  .hint { font-size: 0.83rem; color: var(--muted); margin-top: 10px; }
-  .channels-info {
-    margin-top: 34px;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
-  .channels-info h3 { color: var(--text); font-size: 1.05rem; }
-  .channels-info table { border-collapse: collapse; width: 100%; margin-top: 8px; }
-  .channels-info td, .channels-info th {
+
+  /* Module table */
+  table.modules {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
     border: 1px solid var(--border);
-    padding: 7px 12px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table.modules th, table.modules td {
+    padding: 11px 14px;
     text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    vertical-align: middle;
   }
-  .channels-info th { background: #eef1f5; }
-  footer {
-    text-align: center;
+  table.modules th {
+    background: #eef1f5;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     color: var(--muted);
-    font-size: 0.82rem;
-    padding: 26px;
   }
+  table.modules tr:last-child td { border-bottom: none; }
+  table.modules tr:hover td { background: #f8fafc; }
+  .mod-abbr { font-weight: 700; color: var(--brand); }
+  .mod-ver code { background: #eef1f5; padding: 1px 7px; border-radius: 4px; font-size: 0.86rem; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; text-decoration: none; cursor: pointer;
+    padding: 6px 12px; border-radius: 5px; font-size: 0.84rem; font-weight: 600;
+    border: 1px solid var(--brand); white-space: nowrap;
+  }
+  .btn.primary { background: var(--brand); color: #fff; }
+  .btn.primary:hover { background: var(--brand-dark); }
+  .btn.ghost { background: #fff; color: var(--brand); }
+  .btn.ghost:hover { background: #eaf2fb; }
+  .empty { color: var(--muted); padding: 26px; text-align: center; font-style: italic; }
+
+  /* Prose (instructions / requirements) */
+  .prose h2 { color: var(--brand); font-size: 1.3rem; margin-top: 28px; }
+  .prose h2:first-child { margin-top: 0; }
+  .prose h3 { font-size: 1.05rem; margin-top: 20px; }
+  .prose p, .prose li { font-size: 0.94rem; }
+  .prose code { background: #eef1f5; padding: 1px 6px; border-radius: 4px; }
+  .prose pre {
+    background: #1f2933; color: #e6edf3; padding: 12px 14px;
+    border-radius: 6px; overflow-x: auto; font-size: 0.85rem;
+  }
+  .prose .note {
+    background: #fff8e6; border-left: 4px solid var(--alpha);
+    padding: 12px 16px; border-radius: 6px; margin: 16px 0;
+  }
+  .prose ol li { margin-bottom: 6px; }
+
   #status { text-align: center; color: var(--muted); padding: 30px; }
-  .err { color: #b3261e; }
+  #status.err { color: #b3261e; }
+  footer { text-align: center; color: var(--muted); font-size: 0.82rem; padding: 26px; }
+  footer a { color: var(--brand); }
+  .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    background: #1f2933; color: #fff; padding: 10px 18px; border-radius: 6px;
+    font-size: 0.9rem; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -138,106 +159,252 @@
   <p>Distribuce modulů Fenix přes Windows App Installer s automatickou aktualizací</p>
 </header>
 
+<nav class="tabs" id="tabs">
+  <button data-tab="alpha">Alpha</button>
+  <button data-tab="beta">Beta</button>
+  <button data-tab="prod">Prod</button>
+  <button data-tab="navod">Návod k instalaci</button>
+  <button data-tab="pozadavky">Systémové požadavky</button>
+</nav>
+
 <main>
-  <div class="intro">
-    Vyberte modul a kanál, klikněte na <strong>Instalovat</strong>. Aplikace se po instalaci
-    <strong>automaticky aktualizuje</strong> při každém spuštění — nemusíte nic řešit.
-    Pokud tlačítko Instalovat nereaguje, použijte <em>Stáhnout instalační soubor</em> a stažený
-    <code>.appinstaller</code> soubor otevřete dvojklikem.
-  </div>
+  <!-- Channel panels -->
+  <section class="panel" id="panel-alpha">
+    <div class="channel-desc alpha">
+      <h2><span class="badge alpha">alpha</span> Testovací kanál</h2>
+      <p>Nejnovější verze, mohou obsahovat chyby. Určeno pro <strong>testery a vývojáře</strong>
+      k ověření nových funkcí. <strong>Nepoužívejte v ostrém provozu.</strong></p>
+    </div>
+    <div class="channel-table" data-channel="alpha"></div>
+  </section>
+
+  <section class="panel" id="panel-beta">
+    <div class="channel-desc beta">
+      <h2><span class="badge beta">beta</span> Pilotní kanál</h2>
+      <p>Verze ověřovaná před nasazením do produkce, stabilnější než alpha. Určeno pro
+      <strong>pilotní uživatele</strong>, kteří novou verzi zkoušejí v reálném prostředí.</p>
+    </div>
+    <div class="channel-table" data-channel="beta"></div>
+  </section>
+
+  <section class="panel" id="panel-prod">
+    <div class="channel-desc prod">
+      <h2><span class="badge prod">prod</span> Produkční kanál</h2>
+      <p>Plně otestované verze pro <strong>ostrý provoz</strong>. Určeno pro běžné uživatele.
+      Doporučený kanál, pokud nejste tester ani pilotní uživatel.</p>
+    </div>
+    <div class="channel-table" data-channel="prod"></div>
+  </section>
+
+  <!-- Install instructions -->
+  <section class="panel prose" id="panel-navod">
+    <h2>Návod k instalaci</h2>
+
+    <h3>Akce v tabulce kanálu</h3>
+    <ul>
+      <li><strong>Instalovat</strong> — spustí Windows App Installer přímo z prohlížeče (vyžaduje
+      povolený protokol, viz níže).</li>
+      <li><strong>Stáhnout</strong> — stáhne soubor <code>.appinstaller</code>; po stažení ho
+      otevřete dvojklikem. Tato cesta funguje vždy.</li>
+      <li><strong>PowerShell</strong> — zkopíruje do schránky příkaz pro instalaci z příkazové řádky
+      (pro pokročilé / hromadné nasazení).</li>
+    </ul>
+
+    <h3>Co se stane po dvojkliku na soubor <code>.appinstaller</code></h3>
+    <ol>
+      <li>Otevře se <strong>Windows App Installer</strong> s informacemi o aplikaci (název, vydavatel
+      Asseco Solutions a.s., verze).</li>
+      <li>Kliknete na <strong>Instalovat</strong> (případně <em>Aktualizovat</em>, pokud už máte
+      starší verzi).</li>
+      <li>App Installer stáhne balík <code>.msix</code> z GitHubu a nainstaluje ho.</li>
+      <li>Aplikace se objeví v nabídce <strong>Start</strong>. Při dalších spuštěních se sama
+      aktualizuje, pokud je k dispozici novější verze.</li>
+    </ol>
+
+    <h3>Výběr výchozí aplikace pro <code>.appinstaller</code></h3>
+    <p>Pokud po dvojkliku Windows neví, čím soubor otevřít, nebo ho otevře špatná aplikace:</p>
+    <ol>
+      <li>Klikněte na stažený soubor <strong>pravým tlačítkem</strong> → <strong>Otevřít v
+      programu</strong> → <strong>Zvolit jinou aplikaci</strong>.</li>
+      <li>Vyberte <strong>App Installer</strong> (Instalační služba aplikací).</li>
+      <li>Volitelně zaškrtněte <em>Vždy používat tuto aplikaci</em> a potvrďte.</li>
+    </ol>
+
+    <h3>Povolení protokolu „Instalovat" (ms-appinstaller)</h3>
+    <p>Tlačítko <strong>Instalovat</strong> používá protokol <code>ms-appinstaller:</code>, který
+    Microsoft z bezpečnostních důvodů od roku 2023 ve výchozím stavu vypíná. Na firemních počítačích
+    ho povoluje IT skupinovou politikou (GPO):</p>
+    <div class="note">
+      <strong>Pro IT:</strong> povolit politiku
+      <code>Enable App Installer ms-appinstaller protocol</code> (App Installer ADMX),
+      registry <code>HKLM\Software\Policies\Microsoft\Windows\AppInstaller → EnableMSAppInstallerProtocol = 1</code>.
+    </div>
+    <p>Pokud protokol není povolen, tlačítko Instalovat nereaguje — použijte <strong>Stáhnout</strong>
+    a soubor otevřete dvojklikem (funguje vždy, bez jakéhokoli nastavení).</p>
+  </section>
+
+  <!-- System requirements -->
+  <section class="panel prose" id="panel-pozadavky">
+    <h2>Systémové požadavky a závislosti</h2>
+    <div class="note">Tato sekce se průběžně doplňuje. Níže je výchozí soupis; konkrétní závislosti
+    jednotlivých modulů budou upřesněny.</div>
+
+    <h3>Operační systém</h3>
+    <ul>
+      <li>Windows 10 verze 2004 (build 19041) nebo novější, případně Windows 11.</li>
+    </ul>
+
+    <h3>Runtime</h3>
+    <ul>
+      <li>.NET 10 Desktop Runtime <em>(bude upřesněno — záleží, zda jsou balíky self-contained)</em>.</li>
+    </ul>
+
+    <h3>Podpis a důvěryhodnost</h3>
+    <ul>
+      <li>Aplikace jsou podepsané veřejně důvěryhodným EV certifikátem Asseco Solutions a.s.
+      (vydavatel DigiCert) — instalace nevyžaduje ruční důvěřování certifikátu.</li>
+    </ul>
+
+    <h3>Síť</h3>
+    <ul>
+      <li>Přístup na <code>github.com</code> a <code>objects.githubusercontent.com</code> (HTTPS)
+      pro stažení a automatické aktualizace.</li>
+    </ul>
+
+    <h3>Databáze a další závislosti</h3>
+    <ul>
+      <li><em>Bude doplněno</em> — připojení ke sdílené databázi Fenix, ovladače, konfigurace.</li>
+    </ul>
+  </section>
 
   <div id="status">Načítám dostupné aplikace…</div>
-  <div class="modules" id="modules"></div>
-
-  <div class="channels-info">
-    <h3>Kanály</h3>
-    <table>
-      <tr><th>Kanál</th><th>Pro koho</th></tr>
-      <tr><td><span class="badge prod">prod</span></td><td>Běžní uživatelé — ostrý provoz</td></tr>
-      <tr><td><span class="badge beta">beta</span></td><td>Pilotní uživatelé</td></tr>
-      <tr><td><span class="badge alpha">alpha</span></td><td>Testeři</td></tr>
-    </table>
-    <p style="margin-top:14px">
-      Požadavky: Windows 10 verze 2004 (build 19041) nebo novější. Aplikace jsou podepsané
-      veřejně důvěryhodným certifikátem Asseco Solutions a.s. — žádné varování „neznámý vydavatel".
-    </p>
-  </div>
 </main>
 
 <footer>
   NEO_HEF release feed · <a href="https://github.com/NEO-HEF/fenix-releases">github.com/NEO-HEF/fenix-releases</a>
 </footer>
 
+<div class="toast" id="toast"></div>
+
 <script>
   const REPO = "NEO-HEF/fenix-releases";
   const MANIFEST_URL = `https://raw.githubusercontent.com/${REPO}/main/release-manifest.json`;
-  const CHANNEL_ORDER = ["prod", "beta", "alpha"];
+  let MANIFEST = null;
 
   function downloadBase(module, channel) {
     return `https://github.com/${REPO}/releases/download/${module}-${channel}`;
   }
 
-  function renderCard(module, channel, version) {
-    const base = downloadBase(module, channel);
-    const appInstallerUrl = `${base}/${module}.appinstaller`;
-    const msUrl = `ms-appinstaller:?source=${encodeURIComponent(appInstallerUrl)}`;
-    const psCmd = `Add-AppxPackage -AppInstallerFile "${appInstallerUrl}"`;
+  function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1600);
+  }
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="card-head">
-        <h2>${module}</h2>
-        <span class="badge ${channel}">${channel}</span>
-      </div>
-      <div class="version">Verze <code>${version}</code></div>
-      <div class="actions">
-        <a class="btn" href="${msUrl}">Instalovat</a>
-        <a class="btn secondary" href="${appInstallerUrl}">Stáhnout instalační soubor</a>
-      </div>
-      <p class="hint">Tlačítko „Instalovat" vyžaduje povolený App Installer protokol (na firemních
-      strojích zajistí IT). Pokud nereaguje, použijte „Stáhnout instalační soubor" a stažený soubor
-      otevřete dvojklikem.</p>
-      <details>
-        <summary>Instalace přes PowerShell (pro pokročilé)</summary>
-        <pre>${psCmd}</pre>
-      </details>
-    `;
-    return card;
+  async function copyPs(module, channel) {
+    const url = `${downloadBase(module, channel)}/${module}.appinstaller`;
+    const cmd = `Add-AppxPackage -AppInstallerFile "${url}"`;
+    try {
+      await navigator.clipboard.writeText(cmd);
+      toast("Příkaz zkopírován do schránky");
+    } catch {
+      prompt("Zkopírujte příkaz ručně:", cmd);
+    }
+  }
+
+  function renderChannelTable(channel, container) {
+    const mods = (MANIFEST && MANIFEST.modules) || {};
+    const rows = [];
+    for (const name of Object.keys(mods).sort()) {
+      const mod = mods[name];
+      const entry = (mod.channels || {})[channel];
+      if (entry && entry.version) {
+        rows.push({ abbr: name, display: mod.displayName || name, version: entry.version });
+      }
+    }
+
+    if (rows.length === 0) {
+      container.innerHTML = `<div class="empty">V tomto kanálu zatím nejsou žádné moduly.</div>`;
+      return;
+    }
+
+    let html = `<table class="modules">
+      <thead><tr>
+        <th>Zkratka</th><th>Název</th><th>Verze</th><th>Akce</th>
+      </tr></thead><tbody>`;
+    for (const r of rows) {
+      const base = downloadBase(r.abbr, channel);
+      const appInstallerUrl = `${base}/${r.abbr}.appinstaller`;
+      const msUrl = `ms-appinstaller:?source=${encodeURIComponent(appInstallerUrl)}`;
+      html += `<tr>
+        <td class="mod-abbr">${r.abbr}</td>
+        <td>${r.display}</td>
+        <td class="mod-ver"><code>${r.version}</code></td>
+        <td><div class="actions">
+          <a class="btn primary" href="${msUrl}">Instalovat</a>
+          <a class="btn ghost" href="${appInstallerUrl}">Stáhnout</a>
+          <button class="btn ghost" onclick="copyPs('${r.abbr}','${channel}')">PowerShell</button>
+        </div></td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function renderAllChannels() {
+    document.querySelectorAll(".channel-table").forEach(el => {
+      renderChannelTable(el.dataset.channel, el);
+    });
+  }
+
+  const TAB_BUTTONS = document.querySelectorAll("nav.tabs button");
+  const PANELS = document.querySelectorAll(".panel");
+
+  function activate(tab) {
+    TAB_BUTTONS.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    PANELS.forEach(p => p.classList.toggle("active", p.id === `panel-${tab}`));
+    location.hash = tab;
+  }
+
+  function channelHasModules(channel) {
+    const mods = (MANIFEST && MANIFEST.modules) || {};
+    return Object.values(mods).some(m => m.channels && m.channels[channel] && m.channels[channel].version);
+  }
+
+  function pickInitialTab() {
+    const hash = location.hash.slice(1);
+    const validHash = Array.from(TAB_BUTTONS).some(b => b.dataset.tab === hash);
+    if (validHash) { activate(hash); return; }
+    // bez explicitního hashe: první neprázdný kanál (prod > beta > alpha), jinak prod
+    for (const ch of ["prod", "beta", "alpha"]) {
+      if (channelHasModules(ch)) { activate(ch); return; }
+    }
+    activate("prod");
+  }
+
+  function setupTabs() {
+    TAB_BUTTONS.forEach(b => b.addEventListener("click", () => activate(b.dataset.tab)));
+    // dočasně zobraz prod, než doběhne fetch (žádný blank stav)
+    activate((location.hash || "#prod").slice(1) || "prod");
   }
 
   async function load() {
     const statusEl = document.getElementById("status");
-    const modulesEl = document.getElementById("modules");
     try {
       const resp = await fetch(MANIFEST_URL, { cache: "no-store" });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const manifest = await resp.json();
-
-      let count = 0;
-      const mods = manifest.modules || {};
-      for (const moduleName of Object.keys(mods).sort()) {
-        const channels = mods[moduleName].channels || {};
-        for (const channel of CHANNEL_ORDER) {
-          const entry = channels[channel];
-          if (entry && entry.version) {
-            modulesEl.appendChild(renderCard(moduleName, channel, entry.version));
-            count++;
-          }
-        }
-      }
-
-      if (count === 0) {
-        statusEl.textContent = "Zatím nejsou publikované žádné aplikace.";
-      } else {
-        statusEl.style.display = "none";
-      }
+      MANIFEST = await resp.json();
+      renderAllChannels();
+      statusEl.style.display = "none";
+      pickInitialTab();
     } catch (e) {
       statusEl.className = "err";
       statusEl.textContent = `Nepodařilo se načíst seznam aplikací (${e.message}).`;
     }
   }
 
+  setupTabs();
   load();
 </script>
 </body>
