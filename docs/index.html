@@ -6,8 +6,8 @@
 <title>NEO_HEF — Instalace aplikací</title>
 <style>
   :root {
-    --brand: #0f4c81;
-    --brand-dark: #0a3a63;
+    --brand: #109194;
+    --brand-dark: #0d2d38;
     --bg: #f4f6f9;
     --card: #ffffff;
     --text: #1f2933;
@@ -26,13 +26,25 @@
     line-height: 1.55;
   }
   header {
-    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
-    color: #fff;
-    padding: 30px 24px 22px;
+    background: #ffffff;
+    border-bottom: 3px solid var(--brand);
     text-align: center;
+    padding: 0;
   }
-  header h1 { margin: 0 0 6px; font-size: 1.8rem; }
-  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+  header .brand-banner {
+    display: block;
+    width: 100%;
+    max-width: 626px;
+    height: auto;
+    margin: 0 auto;
+  }
+  header .subtitle {
+    margin: 0;
+    padding: 10px 16px 14px;
+    color: var(--brand-dark);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
   main { max-width: 1000px; margin: 0 auto; padding: 0 24px 24px; }
 
   /* Tabs */
@@ -122,7 +134,12 @@
   .btn.primary { background: var(--brand); color: #fff; }
   .btn.primary:hover { background: var(--brand-dark); }
   .btn.ghost { background: #fff; color: var(--brand); }
-  .btn.ghost:hover { background: #eaf2fb; }
+  .btn.ghost:hover { background: #e6f3f3; }
+  .btn.ps {
+    background: #fff; color: var(--muted); border-color: var(--border);
+    font-weight: 500; font-size: 0.8rem;
+  }
+  .btn.ps:hover { background: #f0f3f6; color: var(--text); }
   .empty { color: var(--muted); padding: 26px; text-align: center; font-style: italic; }
 
   /* Prose (instructions / requirements) */
@@ -155,8 +172,8 @@
 </head>
 <body>
 <header>
-  <h1>NEO_HEF — Instalace aplikací</h1>
-  <p>Distribuce modulů Fenix přes Windows App Installer s automatickou aktualizací</p>
+  <img class="brand-banner" src="assets/logon-fenix-banner.png" alt="Helios Fenix">
+  <p class="subtitle">Instalace aplikací — automatická aktualizace přes Windows App Installer</p>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -230,6 +247,18 @@
       <li>Volitelně zaškrtněte <em>Vždy používat tuto aplikaci</em> a potvrďte.</li>
     </ol>
 
+    <h3>Odinstalace</h3>
+    <p>Aplikaci lze odinstalovat dvěma způsoby:</p>
+    <ul>
+      <li><strong>Nabídka Start</strong> — pravým tlačítkem na dlaždici aplikace → <strong>Odinstalovat</strong>.</li>
+      <li><strong>Nastavení</strong> → <em>Aplikace → Nainstalované aplikace</em> → najít modul → <strong>Odinstalovat</strong>.</li>
+      <li><strong>PowerShell</strong> — tlačítko <em>PS odinstalace</em> v tabulce zkopíruje příkaz, např.:
+        <pre>Get-AppxPackage Asseco.Fenix.RZP | Remove-AppxPackage</pre>
+      </li>
+    </ul>
+    <p>Odinstalace odebere aplikaci i s jejím lokálním úložištěm (nastavení, cache). Sdílená data
+    v databázi Fenix zůstávají nedotčena.</p>
+
     <h3>Povolení protokolu „Instalovat" (ms-appinstaller)</h3>
     <p>Tlačítko <strong>Instalovat</strong> používá protokol <code>ms-appinstaller:</code>, který
     Microsoft z bezpečnostních důvodů od roku 2023 ve výchozím stavu vypíná. Na firemních počítačích
@@ -302,15 +331,22 @@
     setTimeout(() => t.classList.remove("show"), 1600);
   }
 
-  async function copyPs(module, channel) {
-    const url = `${downloadBase(module, channel)}/${module}.appinstaller`;
-    const cmd = `Add-AppxPackage -AppInstallerFile "${url}"`;
+  async function copyCmd(cmd) {
     try {
       await navigator.clipboard.writeText(cmd);
       toast("Příkaz zkopírován do schránky");
     } catch {
       prompt("Zkopírujte příkaz ručně:", cmd);
     }
+  }
+
+  function copyInstall(module, channel) {
+    const url = `${downloadBase(module, channel)}/${module}.appinstaller`;
+    copyCmd(`Add-AppxPackage -AppInstallerFile "${url}"`);
+  }
+
+  function copyUninstall(pkgId) {
+    copyCmd(`Get-AppxPackage ${pkgId} | Remove-AppxPackage`);
   }
 
   function renderChannelTable(channel, container) {
@@ -320,7 +356,12 @@
       const mod = mods[name];
       const entry = (mod.channels || {})[channel];
       if (entry && entry.version) {
-        rows.push({ abbr: name, display: mod.displayName || name, version: entry.version });
+        rows.push({
+          abbr: name,
+          display: mod.displayName || name,
+          version: entry.version,
+          pkgId: mod.packageIdentityName || name
+        });
       }
     }
 
@@ -344,7 +385,8 @@
         <td><div class="actions">
           <a class="btn primary" href="${msUrl}">Instalovat</a>
           <a class="btn ghost" href="${appInstallerUrl}">Stáhnout</a>
-          <button class="btn ghost" onclick="copyPs('${r.abbr}','${channel}')">PowerShell</button>
+          <button class="btn ps" onclick="copyInstall('${r.abbr}','${channel}')" title="Zkopírovat PowerShell příkaz pro instalaci">PS instalace</button>
+          <button class="btn ps" onclick="copyUninstall('${r.pkgId}')" title="Zkopírovat PowerShell příkaz pro odinstalaci">PS odinstalace</button>
         </div></td>
       </tr>`;
     }
