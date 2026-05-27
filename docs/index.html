@@ -29,19 +29,14 @@
     background: #ffffff;
     border-bottom: 3px solid var(--brand);
     text-align: center;
-    padding: 0;
+    padding: 26px 24px 20px;
   }
-  header .brand-banner {
-    display: block;
-    width: 100%;
-    max-width: 626px;
-    height: auto;
-    margin: 0 auto;
-  }
+  header h1 { margin: 0; font-size: 2rem; letter-spacing: -0.01em; }
+  header h1 .h-helios { color: var(--brand); font-weight: 800; }
+  header h1 .h-fenix { color: #4a5d66; font-weight: 400; }
   header .subtitle {
-    margin: 0;
-    padding: 10px 16px 14px;
-    color: var(--brand-dark);
+    margin: 6px 0 0;
+    color: var(--muted);
     font-size: 0.95rem;
     font-weight: 600;
   }
@@ -172,7 +167,7 @@
 </head>
 <body>
 <header>
-  <img class="brand-banner" src="assets/logon-fenix-banner.png" alt="Helios Fenix">
+  <h1><span class="h-helios">Helios</span> <span class="h-fenix">Fenix</span></h1>
   <p class="subtitle">Instalace aplikací — automatická aktualizace přes Windows App Installer</p>
 </header>
 
@@ -247,6 +242,18 @@
       <li>Volitelně zaškrtněte <em>Vždy používat tuto aplikaci</em> a potvrďte.</li>
     </ol>
 
+    <h3>Přechod mezi kanály</h3>
+    <p>Na jednom počítači je nainstalovaná vždy <strong>jen jedna verze</strong> daného modulu —
+    všechny kanály sdílejí stejnou identitu aplikace, takže se <strong>vzájemně vylučují</strong>.
+    Přechod na jiný kanál tedy znamená nahrazení stávající instalace:</p>
+    <ol>
+      <li>Odinstalujte aktuální verzi (viz <em>Odinstalace</em> níže).</li>
+      <li>Nainstalujte modul z příslušného kanálu (záložky Alpha / Beta / Prod).</li>
+    </ol>
+    <p>Tím se zároveň přepne zdroj automatických aktualizací na nový kanál. Přechod na kanál s
+    <em>vyšší</em> verzí proběhne i prostou instalací bez odinstalace (chová se jako aktualizace);
+    přechod na <em>nižší</em> verzi (např. z alpha zpět na prod) vyžaduje nejdřív odinstalaci.</p>
+
     <h3>Odinstalace</h3>
     <p>Aplikaci lze odinstalovat dvěma způsoby:</p>
     <ul>
@@ -310,7 +317,7 @@
 </main>
 
 <footer>
-  NEO_HEF release feed · <a href="https://github.com/NEO-HEF/fenix-releases">github.com/NEO-HEF/fenix-releases</a>
+  © Asseco Solutions, a.s. 2026
 </footer>
 
 <div class="toast" id="toast"></div>
