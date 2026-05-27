@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEO_HEF — Instalace aplikací</title>
+<style>
+  :root {
+    --brand: #0f4c81;
+    --brand-dark: #0a3a63;
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --text: #1f2933;
+    --muted: #66727f;
+    --border: #dce3ea;
+    --alpha: #b8860b;
+    --beta: #6b4ea0;
+    --prod: #1e7e34;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    line-height: 1.55;
+  }
+  header {
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    color: #fff;
+    padding: 36px 24px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 1.9rem; }
+  header p { margin: 0; opacity: 0.9; }
+  main { max-width: 920px; margin: 0 auto; padding: 24px; }
+  .intro {
+    background: #eaf2fb;
+    border-left: 4px solid var(--brand);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 26px;
+    font-size: 0.95rem;
+  }
+  .modules { display: grid; gap: 18px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .card-head h2 { margin: 0; font-size: 1.35rem; }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    color: #fff;
+  }
+  .badge.alpha { background: var(--alpha); }
+  .badge.beta  { background: var(--beta); }
+  .badge.prod  { background: var(--prod); }
+  .version { color: var(--muted); font-size: 0.9rem; margin-bottom: 14px; }
+  .version code { background: #eef1f5; padding: 1px 6px; border-radius: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-block;
+    background: var(--brand);
+    color: #fff;
+    text-decoration: none;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--brand-dark); }
+  .btn.secondary {
+    background: #fff;
+    color: var(--brand);
+    border: 1px solid var(--brand);
+  }
+  .btn.secondary:hover { background: #eaf2fb; }
+  details { margin-top: 12px; }
+  details summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.88rem;
+    user-select: none;
+  }
+  details pre {
+    background: #1f2933;
+    color: #e6edf3;
+    padding: 12px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 10px 0 0;
+  }
+  .hint { font-size: 0.83rem; color: var(--muted); margin-top: 10px; }
+  .channels-info {
+    margin-top: 34px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .channels-info h3 { color: var(--text); font-size: 1.05rem; }
+  .channels-info table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  .channels-info td, .channels-info th {
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    text-align: left;
+  }
+  .channels-info th { background: #eef1f5; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    padding: 26px;
+  }
+  #status { text-align: center; color: var(--muted); padding: 30px; }
+  .err { color: #b3261e; }
+</style>
+</head>
+<body>
+<header>
+  <h1>NEO_HEF — Instalace aplikací</h1>
+  <p>Distribuce modulů Fenix přes Windows App Installer s automatickou aktualizací</p>
+</header>
+
+<main>
+  <div class="intro">
+    Vyberte modul a kanál, klikněte na <strong>Instalovat</strong>. Aplikace se po instalaci
+    <strong>automaticky aktualizuje</strong> při každém spuštění — nemusíte nic řešit.
+    Pokud tlačítko Instalovat nereaguje, použijte <em>Stáhnout instalační soubor</em> a stažený
+    <code>.appinstaller</code> soubor otevřete dvojklikem.
+  </div>
+
+  <div id="status">Načítám dostupné aplikace…</div>
+  <div class="modules" id="modules"></div>
+
+  <div class="channels-info">
+    <h3>Kanály</h3>
+    <table>
+      <tr><th>Kanál</th><th>Pro koho</th></tr>
+      <tr><td><span class="badge prod">prod</span></td><td>Běžní uživatelé — ostrý provoz</td></tr>
+      <tr><td><span class="badge beta">beta</span></td><td>Pilotní uživatelé</td></tr>
+      <tr><td><span class="badge alpha">alpha</span></td><td>Testeři</td></tr>
+    </table>
+    <p style="margin-top:14px">
+      Požadavky: Windows 10 verze 2004 (build 19041) nebo novější. Aplikace jsou podepsané
+      veřejně důvěryhodným certifikátem Asseco Solutions a.s. — žádné varování „neznámý vydavatel".
+    </p>
+  </div>
+</main>
+
+<footer>
+  NEO_HEF release feed · <a href="https://github.com/NEO-HEF/fenix-releases">github.com/NEO-HEF/fenix-releases</a>
+</footer>
+
+<script>
+  const REPO = "NEO-HEF/fenix-releases";
+  const MANIFEST_URL = `https://raw.githubusercontent.com/${REPO}/main/release-manifest.json`;
+  const CHANNEL_ORDER = ["prod", "beta", "alpha"];
+
+  function downloadBase(module, channel) {
+    return `https://github.com/${REPO}/releases/download/${module}-${channel}`;
+  }
+
+  function renderCard(module, channel, version) {
+    const base = downloadBase(module, channel);
+    const appInstallerUrl = `${base}/${module}.appinstaller`;
+    const msUrl = `ms-appinstaller:?source=${encodeURIComponent(appInstallerUrl)}`;
+    const psCmd = `Add-AppxPackage -AppInstallerFile "${appInstallerUrl}"`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-head">
+        <h2>${module}</h2>
+        <span class="badge ${channel}">${channel}</span>
+      </div>
+      <div class="version">Verze <code>${version}</code></div>
+      <div class="actions">
+        <a class="btn" href="${msUrl}">Instalovat</a>
+        <a class="btn secondary" href="${appInstallerUrl}">Stáhnout instalační soubor</a>
+      </div>
+      <p class="hint">Tlačítko „Instalovat" vyžaduje povolený App Installer protokol (na firemních
+      strojích zajistí IT). Pokud nereaguje, použijte „Stáhnout instalační soubor" a stažený soubor
+      otevřete dvojklikem.</p>
+      <details>
+        <summary>Instalace přes PowerShell (pro pokročilé)</summary>
+        <pre>${psCmd}</pre>
+      </details>
+    `;
+    return card;
+  }
+
+  async function load() {
+    const statusEl = document.getElementById("status");
+    const modulesEl = document.getElementById("modules");
+    try {
+      const resp = await fetch(MANIFEST_URL, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const manifest = await resp.json();
+
+      let count = 0;
+      const mods = manifest.modules || {};
+      for (const moduleName of Object.keys(mods).sort()) {
+        const channels = mods[moduleName].channels || {};
+        for (const channel of CHANNEL_ORDER) {
+          const entry = channels[channel];
+          if (entry && entry.version) {
+            modulesEl.appendChild(renderCard(moduleName, channel, entry.version));
+            count++;
+          }
+        }
+      }
+
+      if (count === 0) {
+        statusEl.textContent = "Zatím nejsou publikované žádné aplikace.";
+      } else {
+        statusEl.style.display = "none";
+      }
+    } catch (e) {
+      statusEl.className = "err";
+      statusEl.textContent = `Nepodařilo se načíst seznam aplikací (${e.message}).`;
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
