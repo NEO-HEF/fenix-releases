@@ -331,7 +331,23 @@
 
     <h3>Databáze a další závislosti</h3>
     <ul>
-      <li><em>Bude doplněno</em> — připojení ke sdílené databázi Fenix, ovladače, konfigurace.</li>
+      <li>Pro práci s databázovými a Office soubory musí být na stanici nainstalovaný alespoň jeden
+      z OLE DB providerů <code>Microsoft.ACE.OLEDB.16.0</code> nebo
+      <code>Microsoft.ACE.OLEDB.12.0</code>.</li>
+      <li><strong>Doporučeno:</strong> použít novější <code>Microsoft.ACE.OLEDB.16.0</code>, ideálně
+      přes Microsoft 365 Access Runtime. Pro aktuální balíky RZP instalujte 64bitovou variantu (x64).
+      Oficiální stránka ke stažení:
+      <a href="https://support.microsoft.com/cs-cz/access/download-and-install-microsoft-365-access-runtime">Microsoft 365 Access Runtime</a>.
+      Přímé české instalační odkazy:
+      <a href="https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=AccessRuntimeRetail&amp;language=cs-cz&amp;platform=x64">x64</a>,
+      <a href="https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=AccessRuntimeRetail&amp;language=cs-cz&amp;platform=x86">x86</a>.</li>
+      <li>Alternativně lze použít Microsoft Access Database Engine 2016 Redistributable z oficiálního
+      Microsoft Download Center:
+      <a href="https://www.microsoft.com/en-us/download/details.aspx?id=54920">https://www.microsoft.com/en-us/download/details.aspx?id=54920</a>.
+      Microsoft u této starší redistribuce uvádí ukončenou podporu a jako doporučenou náhradu odkazuje
+      na Microsoft 365 Access Runtime.</li>
+      <li><code>Microsoft.ACE.OLEDB.12.0</code> berte jako kompatibilní fallback pro stanice, kde už je
+      tento provider k dispozici. Pro nové instalace preferujte <code>Microsoft.ACE.OLEDB.16.0</code>.</li>
     </ul>
   </section>
 
