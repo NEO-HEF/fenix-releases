@@ -20,7 +20,7 @@ Immutable version tagy (`<Module>-v<version>`) drží historické podepsané MSI
 
 3. **PR + merge** (nebo manuálně `Promote-FromManifest.ps1`).
 
-4. Promote workflow přepíše `RZP-prod` assety verzí 10.1.1.0.
+4. Promote workflow přepíše `RZP-10.1-prod` assety verzí 10.1.1.0.
 
 ## Co se stane u klienta
 
@@ -30,8 +30,8 @@ Možnosti:
 - **Forward-fix (preferováno):** místo rollbacku vydej **vyšší** verzi s opravou (10.1.3.0). Klienti se na ni updatují normálně.
 - **Hard rollback (nouzově):** klient musí ručně odinstalovat + reinstalovat:
   ```powershell
-  Get-AppxPackage Asseco.Fenix.RZP | Remove-AppxPackage
-  Add-AppxPackage -AppInstallerFile https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-prod/RZP.appinstaller
+  Get-AppxPackage Asseco.Fenix.RZP.v10-1 | Remove-AppxPackage
+  Add-AppxPackage -AppInstallerFile https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-prod/RZP.appinstaller
   ```
 
 ## Doporučení

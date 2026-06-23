@@ -1,23 +1,53 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/NEO-HEF/fenix-releases/schema/release-manifest.schema.json",
-  "title": "NEO_HEF Release Manifest",
-  "description": "Single source of truth pro verze NEO_HEF modulů per release kanál. Promote workflow (.github/workflows/promote.yml) čte tento soubor a publikuje channel tagy z immutable version tagů. Pouze moduly se samostatným .exe (RZP, UCV, ...). SPOL ne — je bundled DLL v každém modulu.",
+  "title": "NEO_HEF Release Manifest (multi-version)",
+  "description": "Single source of truth pro verze NEO_HEF modulů. Per Q6 je nejvyšší dimenzí PODPOROVANÁ VERZE FENIXU (např. '10.1', '10.11') — každá je samostatná oblast s vlastními kanály a vlastní MSIX Package Identity. Klient se NIKDY automaticky neupgraduje napříč verzemi (přechod = migrace DB schématu + reinstalace). Promote workflow (.github/workflows/promote.yml) čte tento soubor a publikuje channel tagy <Module>-<FenixVer>-<Channel> z immutable version tagů <Module>-v<version>. Pouze moduly se samostatným .exe (RZP, UCV, ...). SPOL ne — je bundled DLL v každém modulu.",
   "type": "object",
-  "required": ["modules"],
+  "required": ["fenixVersions"],
   "additionalProperties": false,
   "properties": {
     "$schema": { "type": "string" },
-    "modules": {
+    "fenixVersions": {
       "type": "object",
-      "description": "Klíč = krátké jméno modulu (3-10 velkých písmen, např. 'RZP').",
+      "description": "Klíč = verze Fenixu ve formátu Major.Minor (raw, např. '10.1' nebo '10.11'). Typicky 2 souběžně podporované linie. Hodnota = stav linie + její moduly. install stránka generuje verzní záložky přímo z klíčů tohoto objektu — přidání/odebrání verze tady = přidání/odebrání záložky bez editace HTML.",
       "patternProperties": {
-        "^[A-Z][A-Z0-9]{1,9}$": { "$ref": "#/definitions/module" }
+        "^\\d+\\.\\d+$": { "$ref": "#/definitions/fenixVersion" }
       },
       "additionalProperties": false
     }
   },
   "definitions": {
+    "fenixVersion": {
+      "type": "object",
+      "required": ["modules"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["planned", "active", "maintenance", "eol"],
+          "description": "planned = oznámená, zatím bez buildů; active = aktivně vyvíjená; maintenance = jen kritické opravy; eol = po konci podpory. Zobrazuje se na install stránce jako banner."
+        },
+        "endOfLife": {
+          "type": "string",
+          "format": "date",
+          "description": "Volitelně: datum konce podpory linie (YYYY-MM-DD)."
+        },
+        "migrationGuideUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Volitelně: URL návodu na přechod na novější linii (migrace DB schématu + reinstalace)."
+        },
+        "modules": {
+          "type": "object",
+          "description": "Klíč = krátké jméno modulu (3-10 velkých písmen, např. 'RZP').",
+          "patternProperties": {
+            "^[A-Z][A-Z0-9]{1,9}$": { "$ref": "#/definitions/module" }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
     "module": {
       "type": "object",
       "required": ["displayName", "packageIdentityName", "publisher", "channels"],
@@ -25,12 +55,12 @@
       "properties": {
         "displayName": {
           "type": "string",
-          "description": "Dlouhý český název modulu (např. 'Rozpočet' pro RZP). Zobrazuje se na install stránce."
+          "description": "Dlouhý český název modulu. Zobrazuje se na install stránce ve sloupci Název."
         },
         "packageIdentityName": {
           "type": "string",
-          "pattern": "^Asseco\\.Fenix\\.[A-Z][A-Z0-9]{1,9}$",
-          "description": "MSIX Package Identity Name (Package.appxmanifest <Identity Name>). Navždy uzamčené."
+          "pattern": "^Asseco\\.Fenix\\.[A-Z][A-Z0-9]{1,9}\\.v\\d+-\\d+$",
+          "description": "MSIX Package Identity Name s verzním suffixem '.v<Major>-<Minor>' (Package.appxmanifest <Identity Name>). Per Q6 musí být UNIKÁTNÍ pro každou verzi Fenixu (10.1 -> '.v10-1', 10.11 -> '.v10-11'), aby nedošlo k automatickému cross-version upgradu. Navždy uzamčené v rámci linie."
         },
         "publisher": {
           "type": "string",
@@ -43,7 +73,7 @@
         },
         "channels": {
           "type": "object",
-          "description": "alpha/beta/prod. Prázdný objekt {} = kanál založen ale modul tam zatím není publikovaný.",
+          "description": "alpha/beta/prod v rámci této verze Fenixu. Prázdný objekt {} = kanál založen, ale modul tam zatím není publikovaný (promote ho přeskočí).",
           "propertyNames": { "enum": ["alpha", "beta", "prod"] },
           "additionalProperties": { "$ref": "#/definitions/releaseEntry" }
         }
@@ -56,7 +86,7 @@
         "version": {
           "type": "string",
           "pattern": "^\\d+\\.\\d+\\.\\d+\\.\\d+$",
-          "description": "MSIX 4-part version. Musí existovat odpovídající immutable version tag <Module>-v<version> s podepsaným MSIX. Promote workflow z něj kopíruje na channel tag."
+          "description": "MSIX 4-part technická verze (Major.Minor.Build.Revision). Major.Minor MUSÍ odpovídat klíči nadřazené verze Fenixu. Musí existovat immutable version tag <Module>-v<version> s podepsaným MSIX (identita uvnitř MSIX = packageIdentityName), ze kterého promote workflow kopíruje na channel tag."
         },
         "releaseNotesUrl": {
           "type": "string",

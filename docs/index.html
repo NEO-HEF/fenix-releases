@@ -42,7 +42,7 @@
   }
   main { max-width: 1000px; margin: 0 auto; padding: 0 24px 24px; }
 
-  /* Tabs */
+  /* Top tabs (verze Fenixu + globální stránky) */
   nav.tabs {
     display: flex;
     flex-wrap: wrap;
@@ -69,9 +69,43 @@
     color: #fff;
     border-bottom-color: #fff;
   }
+  nav.tabs button.version-tab { border-left: 1px solid rgba(255,255,255,0.08); }
+  nav.tabs .tab-spacer { flex: 1 1 auto; }
 
   .panel { display: none; padding-top: 26px; }
   .panel.active { display: block; }
+
+  /* Banner stavu verze Fenixu */
+  .version-banner {
+    border-left: 4px solid var(--brand);
+    background: #eef6f6;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+  }
+  .version-banner strong { color: var(--brand-dark); }
+  .version-banner .vb-note { display: block; margin-top: 5px; color: var(--muted); }
+  .version-banner.v-active      { border-left-color: var(--prod);  background: #ebf6ee; }
+  .version-banner.v-maintenance { border-left-color: var(--alpha); background: #fbf6e9; }
+  .version-banner.v-planned     { border-left-color: var(--muted); background: #f0f3f6; }
+  .version-banner.v-eol         { border-left-color: #b3261e;      background: #fdecea; }
+
+  /* Kanálové sub-taby uvnitř verze */
+  nav.subtabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 22px;
+  }
+  nav.subtabs button {
+    background: transparent; border: none; color: var(--muted);
+    padding: 9px 16px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s;
+  }
+  nav.subtabs button:hover { color: var(--text); }
+  nav.subtabs button.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .subpanel { display: none; }
+  .subpanel.active { display: block; }
 
   .channel-desc {
     border-left: 4px solid var(--brand);
@@ -172,46 +206,25 @@
   <p class="subtitle">Instalace aplikací — automatická aktualizace přes Windows App Installer</p>
 </header>
 
+<!-- Verzní záložky (Fenix 10.01, 10.11, ...) generuje JS z manifestu před tyto globální tlačítka. -->
 <nav class="tabs" id="tabs">
-  <button data-tab="alpha">Alpha</button>
-  <button data-tab="beta">Beta</button>
-  <button data-tab="prod">Prod</button>
-  <button data-tab="navod">Návod k instalaci</button>
+  <span class="tab-spacer"></span>
+  <button data-tab="navod" id="tab-navod">Návod k instalaci</button>
   <button data-tab="pozadavky">Systémové požadavky</button>
 </nav>
 
 <main>
-  <!-- Channel panels -->
-  <section class="panel" id="panel-alpha">
-    <div class="channel-desc alpha">
-      <h2><span class="badge alpha">alpha</span> Testovací kanál</h2>
-      <p>Nejnovější verze, mohou obsahovat chyby. Určeno pro <strong>testery a vývojáře</strong>
-      k ověření nových funkcí. <strong>Nepoužívejte v ostrém provozu.</strong></p>
-    </div>
-    <div class="channel-table" data-channel="alpha"></div>
-  </section>
-
-  <section class="panel" id="panel-beta">
-    <div class="channel-desc beta">
-      <h2><span class="badge beta">beta</span> Pilotní kanál</h2>
-      <p>Verze ověřovaná před nasazením do produkce, stabilnější než alpha. Určeno pro
-      <strong>pilotní uživatele</strong>, kteří novou verzi zkoušejí v reálném prostředí.</p>
-    </div>
-    <div class="channel-table" data-channel="beta"></div>
-  </section>
-
-  <section class="panel" id="panel-prod">
-    <div class="channel-desc prod">
-      <h2><span class="badge prod">prod</span> Produkční kanál</h2>
-      <p>Plně otestované verze pro <strong>ostrý provoz</strong>. Určeno pro běžné uživatele.
-      Doporučený kanál, pokud nejste tester ani pilotní uživatel.</p>
-    </div>
-    <div class="channel-table" data-channel="prod"></div>
-  </section>
+  <!-- Verzní panely (generuje JS) -->
+  <div id="version-panels"></div>
 
   <!-- Install instructions -->
   <section class="panel prose" id="panel-navod">
     <h2>Návod k instalaci</h2>
+
+    <h3>Verze Fenixu a kanály</h3>
+    <p>Nejprve zvolte záložku <strong>verze Fenixu</strong> (např. <em>Fenix 10.01</em>), pak uvnitř
+    <strong>kanál</strong> (Alpha / Beta / Prod). Každá verze Fenixu je samostatná aplikace s vlastní
+    identitou — instaluje a aktualizuje se nezávisle na ostatních verzích.</p>
 
     <h3>Akce v tabulce kanálu</h3>
     <ul>
@@ -228,10 +241,10 @@
       <li>Otevře se <strong>Windows App Installer</strong> s informacemi o aplikaci (název, vydavatel
       Asseco Solutions a.s., verze).</li>
       <li>Kliknete na <strong>Instalovat</strong> (případně <em>Aktualizovat</em>, pokud už máte
-      starší verzi).</li>
+      starší verzi téže linie).</li>
       <li>App Installer stáhne balík <code>.msix</code> z GitHubu a nainstaluje ho.</li>
       <li>Aplikace se objeví v nabídce <strong>Start</strong>. Při dalších spuštěních se sama
-      aktualizuje, pokud je k dispozici novější verze.</li>
+      aktualizuje, pokud je v rámci téže verze Fenixu k dispozici novější build.</li>
     </ol>
 
     <h3>Dvojklik hlásí chybu — přípona <code>.appinstaller</code> není přiřazená</h3>
@@ -254,25 +267,37 @@
     <p class="muted-note">Tip: pokud chcete instalaci bez řešení asociací úplně obejít, použijte
     tlačítko <strong>PS instalace</strong> v tabulce a vložte příkaz do PowerShellu.</p>
 
-    <h3>Přechod mezi kanály</h3>
-    <p>Na jednom počítači je nainstalovaná vždy <strong>jen jedna verze</strong> daného modulu —
-    všechny kanály sdílejí stejnou identitu aplikace, takže se <strong>vzájemně vylučují</strong>.
-    Přechod na jiný kanál tedy znamená nahrazení stávající instalace:</p>
+    <h3>Přechod mezi kanály (v rámci jedné verze Fenixu)</h3>
+    <p>V rámci jedné verze Fenixu sdílejí kanály Alpha / Beta / Prod stejnou identitu aplikace, takže
+    se na jednom počítači <strong>vzájemně vylučují</strong> — nainstalovaná je vždy jen jedna z nich.
+    Přechod na jiný kanál znamená nahrazení stávající instalace:</p>
     <ol>
       <li>Odinstalujte aktuální verzi (viz <em>Odinstalace</em> níže).</li>
-      <li>Nainstalujte modul z příslušného kanálu (záložky Alpha / Beta / Prod).</li>
+      <li>Nainstalujte modul z příslušného kanálu (sub-záložky Alpha / Beta / Prod uvnitř téže verze).</li>
     </ol>
-    <p>Tím se zároveň přepne zdroj automatických aktualizací na nový kanál. Přechod na kanál s
-    <em>vyšší</em> verzí proběhne i prostou instalací bez odinstalace (chová se jako aktualizace);
-    přechod na <em>nižší</em> verzi (např. z alpha zpět na prod) vyžaduje nejdřív odinstalaci.</p>
+    <p>Přechod na kanál s <em>vyšším</em> buildem proběhne i prostou instalací bez odinstalace (chová
+    se jako aktualizace); přechod na <em>nižší</em> build (např. z alpha zpět na prod) vyžaduje nejdřív
+    odinstalaci.</p>
+
+    <h3>Přechod mezi verzemi Fenixu (10.01 → 10.11)</h3>
+    <div class="note">
+      Různé verze Fenixu (10.01, 10.11, …) jsou <strong>samostatné aplikace s odlišnou identitou</strong>.
+      Přechod mezi nimi <strong>neproběhne automaticky</strong> — vyžaduje
+      <strong>migraci databázového schématu a reinstalaci všech modulů</strong>. Aplikace se proto
+      nikdy sama neupgraduje z 10.01 na 10.11; obě mohou být i nainstalované vedle sebe. Přechod
+      koordinujte podle pokynů dodavatele (migrace dat) — teprve poté odinstalujte starou verzi a
+      nainstalujte novou.
+    </div>
 
     <h3>Odinstalace</h3>
     <p>Aplikaci lze odinstalovat dvěma způsoby:</p>
     <ul>
       <li><strong>Nabídka Start</strong> — pravým tlačítkem na dlaždici aplikace → <strong>Odinstalovat</strong>.</li>
       <li><strong>Nastavení</strong> → <em>Aplikace → Nainstalované aplikace</em> → najít modul → <strong>Odinstalovat</strong>.</li>
-      <li><strong>PowerShell</strong> — tlačítko <em>PS odinstalace</em> v tabulce zkopíruje příkaz, např.:
-        <pre>Get-AppxPackage Asseco.Fenix.RZP | Remove-AppxPackage</pre>
+      <li><strong>PowerShell</strong> — tlačítko <em>PS odinstalace</em> v tabulce zkopíruje příkaz konkrétní
+      verze, např.:
+        <pre>Get-AppxPackage Asseco.Fenix.RZP.v10-1 | Remove-AppxPackage</pre>
+        (Identita nese verzi Fenixu — <code>.v10-1</code> = linie 10.01, <code>.v10-11</code> = linie 10.11.)
       </li>
     </ul>
     <p>Odinstalace odebere aplikaci i s jejím lokálním úložištěm (nastavení, cache). Sdílená data
@@ -294,8 +319,8 @@
   <!-- System requirements -->
   <section class="panel prose" id="panel-pozadavky">
     <h2>Systémové požadavky a závislosti</h2>
-    <div class="note">Tato sekce se průběžně doplňuje. Níže je výchozí soupis; konkrétní závislosti
-    jednotlivých modulů budou upřesněny.</div>
+    <div class="note">Tato sekce platí společně pro všechny aktuálně podporované verze Fenixu. Pokud
+    se požadavky některé verze začnou lišit, doplní se zde samostatná pod-sekce pro danou verzi.</div>
 
     <h3>Operační systém</h3>
     <ul>
@@ -363,11 +388,37 @@
 <script>
   const REPO = "NEO-HEF/fenix-releases";
   const MANIFEST_URL = `https://raw.githubusercontent.com/${REPO}/main/release-manifest.json`;
+  const CHANNELS = ["alpha", "beta", "prod"];
+  const CHANNEL_INFO = {
+    alpha: { title: "Testovací kanál",
+             desc: "Nejnovější verze, mohou obsahovat chyby. Určeno pro <strong>testery a vývojáře</strong> k ověření nových funkcí. <strong>Nepoužívejte v ostrém provozu.</strong>" },
+    beta:  { title: "Pilotní kanál",
+             desc: "Verze ověřovaná před nasazením do produkce, stabilnější než alpha. Určeno pro <strong>pilotní uživatele</strong>, kteří novou verzi zkoušejí v reálném prostředí." },
+    prod:  { title: "Produkční kanál",
+             desc: "Plně otestované verze pro <strong>ostrý provoz</strong>. Doporučený kanál pro běžné uživatele." }
+  };
+  const STATUS_LABEL = {
+    planned: "plánovaná verze (zatím bez vydaných balíků)",
+    active: "aktivně vyvíjená verze",
+    maintenance: "udržovaná verze (jen kritické opravy)",
+    eol: "verze po konci podpory"
+  };
   let MANIFEST = null;
 
-  function downloadBase(module, channel) {
-    return `https://github.com/${REPO}/releases/download/${module}-${channel}`;
+  // 10.1 -> "10.01", 10.11 -> "10.11" (Minor zero-padded na 2 místa, per Q6)
+  function formatVersionLabel(verKey) {
+    const [maj, min] = String(verKey).split(".");
+    return `${maj}.${String(min).padStart(2, "0")}`;
   }
+  // 10.1.6.0 -> "10.01.006" (Major.Minor(2).Build(3), Revision se nezobrazuje)
+  function formatDisplayVersion(v) {
+    const p = String(v).split(".");
+    return `${p[0]}.${String(p[1]).padStart(2, "0")}.${String(p[2]).padStart(3, "0")}`;
+  }
+  function downloadBase(module, fenixVer, channel) {
+    return `https://github.com/${REPO}/releases/download/${module}-${fenixVer}-${channel}`;
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   function toast(msg) {
     const t = document.getElementById("toast");
@@ -375,105 +426,144 @@
     t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 1600);
   }
-
   async function copyCmd(cmd) {
-    try {
-      await navigator.clipboard.writeText(cmd);
-      toast("Příkaz zkopírován do schránky");
-    } catch {
-      prompt("Zkopírujte příkaz ručně:", cmd);
-    }
+    try { await navigator.clipboard.writeText(cmd); toast("Příkaz zkopírován do schránky"); }
+    catch { prompt("Zkopírujte příkaz ručně:", cmd); }
   }
-
-  function copyInstall(module, channel) {
-    const url = `${downloadBase(module, channel)}/${module}.appinstaller`;
-    copyCmd(`Add-AppxPackage -AppInstallerFile "${url}"`);
+  function copyInstall(module, fenixVer, channel) {
+    copyCmd(`Add-AppxPackage -AppInstallerFile "${downloadBase(module, fenixVer, channel)}/${module}.appinstaller"`);
   }
+  function copyUninstall(pkgId) { copyCmd(`Get-AppxPackage ${pkgId} | Remove-AppxPackage`); }
 
-  function copyUninstall(pkgId) {
-    copyCmd(`Get-AppxPackage ${pkgId} | Remove-AppxPackage`);
-  }
-
-  function renderChannelTable(channel, container) {
-    const mods = (MANIFEST && MANIFEST.modules) || {};
+  function renderChannelTable(fenixVer, line, channel) {
+    const mods = line.modules || {};
     const rows = [];
     for (const name of Object.keys(mods).sort()) {
       const mod = mods[name];
       const entry = (mod.channels || {})[channel];
       if (entry && entry.version) {
-        rows.push({
-          abbr: name,
-          display: mod.displayName || name,
-          version: entry.version,
-          pkgId: mod.packageIdentityName || name
-        });
+        rows.push({ abbr: name, display: mod.displayName || name,
+                    version: entry.version, pkgId: mod.packageIdentityName || name });
       }
     }
-
     if (rows.length === 0) {
-      container.innerHTML = `<div class="empty">V tomto kanálu zatím nejsou žádné moduly.</div>`;
-      return;
+      return `<div class="empty">V tomto kanálu zatím nejsou žádné moduly.</div>`;
     }
-
-    let html = `<table class="modules">
-      <thead><tr>
+    let html = `<table class="modules"><thead><tr>
         <th>Zkratka</th><th>Název</th><th>Verze</th><th>Akce</th>
       </tr></thead><tbody>`;
     for (const r of rows) {
-      const base = downloadBase(r.abbr, channel);
-      const appInstallerUrl = `${base}/${r.abbr}.appinstaller`;
+      const appInstallerUrl = `${downloadBase(r.abbr, fenixVer, channel)}/${r.abbr}.appinstaller`;
       const msUrl = `ms-appinstaller:?source=${encodeURIComponent(appInstallerUrl)}`;
       html += `<tr>
-        <td class="mod-abbr">${r.abbr}</td>
-        <td>${r.display}</td>
-        <td class="mod-ver"><code>${r.version}</code></td>
+        <td class="mod-abbr">${esc(r.abbr)}</td>
+        <td>${esc(r.display)}</td>
+        <td class="mod-ver"><code>${esc(formatDisplayVersion(r.version))}</code></td>
         <td><div class="actions">
           <a class="btn primary" href="${msUrl}">Instalovat</a>
           <a class="btn ghost" href="${appInstallerUrl}">Stáhnout</a>
-          <button class="btn ps" onclick="copyInstall('${r.abbr}','${channel}')" title="Zkopírovat PowerShell příkaz pro instalaci">PS instalace</button>
-          <button class="btn ps" onclick="copyUninstall('${r.pkgId}')" title="Zkopírovat PowerShell příkaz pro odinstalaci">PS odinstalace</button>
+          <button class="btn ps" onclick="copyInstall('${r.abbr}','${fenixVer}','${channel}')" title="Zkopírovat PowerShell příkaz pro instalaci">PS instalace</button>
+          <button class="btn ps" onclick="copyUninstall('${esc(r.pkgId)}')" title="Zkopírovat PowerShell příkaz pro odinstalaci">PS odinstalace</button>
         </div></td>
       </tr>`;
     }
-    html += `</tbody></table>`;
-    container.innerHTML = html;
+    return html + `</tbody></table>`;
   }
 
-  function renderAllChannels() {
-    document.querySelectorAll(".channel-table").forEach(el => {
-      renderChannelTable(el.dataset.channel, el);
+  function defaultChannel(fenixVer, line) {
+    for (const ch of ["prod", "beta", "alpha"]) {
+      const has = Object.values(line.modules || {}).some(m => m.channels && m.channels[ch] && m.channels[ch].version);
+      if (has) return ch;
+    }
+    return "alpha";
+  }
+
+  function buildVersionPanel(fenixVer, line) {
+    const label = formatVersionLabel(fenixVer);
+    const status = line.status || "";
+    const statusText = STATUS_LABEL[status] || "podporovaná verze";
+    let html = `<section class="panel" id="panel-v-${fenixVer}">`;
+    html += `<div class="version-banner v-${status}">
+        <strong>Fenix ${label}</strong> — ${statusText}.
+        <span class="vb-note">Přechod na jinou verzi Fenixu vyžaduje migraci databázového schématu a reinstalaci všech modulů — neproběhne automaticky.</span>
+      </div>`;
+    html += `<nav class="subtabs" data-version="${fenixVer}">`;
+    for (const ch of CHANNELS) {
+      html += `<button data-version="${fenixVer}" data-channel="${ch}">${ch.charAt(0).toUpperCase() + ch.slice(1)}</button>`;
+    }
+    html += `</nav>`;
+    for (const ch of CHANNELS) {
+      html += `<div class="subpanel" data-version="${fenixVer}" data-channel="${ch}">
+          <div class="channel-desc ${ch}">
+            <h2><span class="badge ${ch}">${ch}</span> ${CHANNEL_INFO[ch].title}</h2>
+            <p>${CHANNEL_INFO[ch].desc}</p>
+          </div>
+          ${renderChannelTable(fenixVer, line, ch)}
+        </div>`;
+    }
+    html += `</section>`;
+    return html;
+  }
+
+  function versionKeys() {
+    const fv = (MANIFEST && MANIFEST.fenixVersions) || {};
+    // řazení sestupně podle Major.Minor (10.11 před 10.1)
+    return Object.keys(fv).sort((a, b) => {
+      const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+      return (pb[0] - pa[0]) || (pb[1] - pa[1]);
     });
   }
 
-  const TAB_BUTTONS = document.querySelectorAll("nav.tabs button");
-  const PANELS = document.querySelectorAll(".panel");
+  function activateSubChannel(fenixVer, channel) {
+    document.querySelectorAll(`nav.subtabs[data-version="${fenixVer}"] button`)
+      .forEach(b => b.classList.toggle("active", b.dataset.channel === channel));
+    document.querySelectorAll(`.subpanel[data-version="${fenixVer}"]`)
+      .forEach(p => p.classList.toggle("active", p.dataset.channel === channel));
+  }
 
   function activate(tab) {
-    TAB_BUTTONS.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-    PANELS.forEach(p => p.classList.toggle("active", p.id === `panel-${tab}`));
+    document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === `panel-${tab}`));
     location.hash = tab;
   }
 
-  function channelHasModules(channel) {
-    const mods = (MANIFEST && MANIFEST.modules) || {};
-    return Object.values(mods).some(m => m.channels && m.channels[channel] && m.channels[channel].version);
+  function buildVersionTabsAndPanels() {
+    const fv = MANIFEST.fenixVersions || {};
+    const tabsNav = document.getElementById("tabs");
+    const spacer = tabsNav.querySelector(".tab-spacer");
+    const panelsHost = document.getElementById("version-panels");
+
+    for (const verKey of versionKeys()) {
+      const line = fv[verKey];
+      const btn = document.createElement("button");
+      btn.className = "version-tab";
+      btn.dataset.tab = `v-${verKey}`;
+      btn.textContent = `Fenix ${formatVersionLabel(verKey)}`;
+      btn.addEventListener("click", () => activate(`v-${verKey}`));
+      tabsNav.insertBefore(btn, spacer);
+
+      panelsHost.insertAdjacentHTML("beforeend", buildVersionPanel(verKey, line));
+      const def = defaultChannel(verKey, line);
+      activateSubChannel(verKey, def);
+      document.querySelectorAll(`nav.subtabs[data-version="${verKey}"] button`)
+        .forEach(b => b.addEventListener("click", () => activateSubChannel(verKey, b.dataset.channel)));
+    }
   }
 
   function pickInitialTab() {
+    const keys = versionKeys();
+    const validTabs = new Set([...keys.map(k => `v-${k}`), "navod", "pozadavky"]);
     const hash = location.hash.slice(1);
-    const validHash = Array.from(TAB_BUTTONS).some(b => b.dataset.tab === hash);
-    if (validHash) { activate(hash); return; }
-    // bez explicitního hashe: první neprázdný kanál (prod > beta > alpha), jinak prod
-    for (const ch of ["prod", "beta", "alpha"]) {
-      if (channelHasModules(ch)) { activate(ch); return; }
-    }
-    activate("prod");
+    if (validTabs.has(hash)) { activate(hash); return; }
+    // výchozí: první aktivní verze, jinak první verze, jinak Návod
+    const fv = MANIFEST.fenixVersions || {};
+    const active = keys.find(k => (fv[k].status || "") === "active");
+    activate(active ? `v-${active}` : (keys.length ? `v-${keys[0]}` : "navod"));
   }
 
-  function setupTabs() {
-    TAB_BUTTONS.forEach(b => b.addEventListener("click", () => activate(b.dataset.tab)));
-    // dočasně zobraz prod, než doběhne fetch (žádný blank stav)
-    activate((location.hash || "#prod").slice(1) || "prod");
+  function setupStaticTabs() {
+    document.querySelectorAll("nav.tabs button[data-tab='navod'], nav.tabs button[data-tab='pozadavky']")
+      .forEach(b => b.addEventListener("click", () => activate(b.dataset.tab)));
   }
 
   async function load() {
@@ -482,7 +572,7 @@
       const resp = await fetch(MANIFEST_URL, { cache: "no-store" });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       MANIFEST = await resp.json();
-      renderAllChannels();
+      buildVersionTabsAndPanels();
       statusEl.style.display = "none";
       pickInitialTab();
     } catch (e) {
@@ -491,7 +581,7 @@
     }
   }
 
-  setupTabs();
+  setupStaticTabs();
   load();
 </script>
 </body>

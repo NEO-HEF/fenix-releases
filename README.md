@@ -14,34 +14,37 @@ Build + Sign (Asseco devcert, AzDevOps self-hosted agent / lokálně)
    ▼          <Module>-v<version>   (např. RZP-v10.1.1.0)
 ┌─────────────────────────────────────────────────────────┐
 │ release-manifest.json   (source of truth: co je v kanálu)│
+│   version-first: fenixVersions.<verze>.modules.<m>.chan. │
 │   edit + PR + merge na main                              │
 └─────────────────────────────────────────────────────────┘
    │  .github/workflows/promote.yml (GitHub Actions, BEZ signing)
    ▼  kopíruje MSIX z version tagu na channel tag + regen .appinstaller
-mutable channel tagy:   <Module>-alpha / -beta / -prod
+mutable channel tagy:   <Module>-<FenixVer>-alpha / -beta / -prod   (RZP-10.1-alpha)
    │  stabilní URL (assety přepisované --clobber)
    ▼
-Klient:  Add-AppxPackage -AppInstallerFile https://github.com/NEO-HEF/fenix-releases/releases/download/<Module>-<channel>/<Module>.appinstaller
-         → auto-update při spuštění aplikace
+Klient:  Add-AppxPackage -AppInstallerFile https://github.com/NEO-HEF/fenix-releases/releases/download/<Module>-<FenixVer>-<channel>/<Module>.appinstaller
+         → auto-update jen UVNITŘ verze Fenixu (jiná verze = jiná identita, žádný cross-version upgrade)
 ```
+
+> **Multi-version (Q6):** nejvyšší dimenzí je **verze Fenixu** (10.1, 10.11, …) — souběžně podporované linie, každá s vlastní MSIX identitou (`Asseco.Fenix.RZP.v10-1` / `.v10-11`) a vlastními channel tagy. Přechod klienta mezi verzemi **není automatický** (vyžaduje migraci DB schématu + reinstalaci). Instalační stránka generuje verzní záložky přímo z klíčů `fenixVersions` v manifestu.
 
 ## Kanály
 
 | Kanál | Účel | Tag | Prerelease flag |
 |-------|------|-----|-----------------|
-| alpha | testování | `<Module>-alpha` | ano |
-| beta  | pilot | `<Module>-beta` | ano |
-| prod  | ostrý provoz | `<Module>-prod` | ne |
+| alpha | testování | `<Module>-<FenixVer>-alpha` | ano |
+| beta  | pilot | `<Module>-<FenixVer>-beta` | ano |
+| prod  | ostrý provoz | `<Module>-<FenixVer>-prod` | ne |
 
 ## Stabilní install URL
 
 ```
-https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-alpha/RZP.appinstaller
-https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-beta/RZP.appinstaller
-https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-prod/RZP.appinstaller
+https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-alpha/RZP.appinstaller
+https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-beta/RZP.appinstaller
+https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-prod/RZP.appinstaller
 ```
 
-URL je stabilní napříč verzemi — promote přepisuje assety (`--clobber`), tag jméno se nemění.
+URL je stabilní napříč buildy téže linie — promote přepisuje assety (`--clobber`), tag jméno se nemění. Verze Fenixu je součástí tagu (`RZP-10.1-…` vs `RZP-10.11-…`), takže linie mají oddělené, stabilní feedy.
 
 ## Soubory
 

@@ -1,8 +1,9 @@
 name: Promote channels from manifest
 
-# Promote workflow — publikuje channel tagy (RZP-alpha, RZP-beta, RZP-prod)
-# podle release-manifest.json. Spouští se při změně manifestu na main (typicky
-# po merge PR, kterým release manager promotuje verzi mezi kanály).
+# Promote workflow — publikuje version-scoped channel tagy
+# (RZP-10.1-alpha, RZP-10.11-beta, ...) podle release-manifest.json. Spouští se
+# při změně manifestu na main (typicky po merge PR, kterým release manager
+# promotuje verzi mezi kanály). Per Q6 je nejvyšší dimenzí verze Fenixu.
 #
 # NEPODEPISUJE — MSIX je už podepsaný v immutable version tagu. Proto běží na
 # GitHub-hosted runneru bez přístupu na Asseco LAN/devcert.
