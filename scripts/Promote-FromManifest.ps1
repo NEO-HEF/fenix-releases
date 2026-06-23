@@ -5,11 +5,17 @@
 
 .DESCRIPTION
     Manifest-driven promote (multi-version, per Q6). Pro každou verzi Fenixu ×
-    modul × kanál s vyplněnou 'version':
-      1. Stáhne <Module>.msix z immutable version tagu <Module>-v<version>.
-      2. Vygeneruje <Module>.appinstaller (z manifest metadat + channel URL).
-      3. Vytvoří/aktualizuje channel release <Module>-<FenixVer>-<channel> a nahraje
-         assety (--clobber) → download URL stabilní napříč releasy.
+    modul × kanál:
+      1. VŽDY zajistí, že systémový channel release <Module>-<FenixVer>-<channel>
+         existuje (vytvoří chybějící) a nastaví mu varovný popis "NEMAZAT".
+      2. Pokud má kanál v manifestu 'version': stáhne <Module>.msix z immutable
+         version tagu <Module>-v<version>, vygeneruje <Module>.appinstaller a nahraje
+         oba assety (--clobber) → download URL stabilní napříč releasy.
+      3. Prázdný kanál (bez 'version') = jen rezervovaný placeholder release bez assetů.
+
+    Channel release jsou SYSTÉMOVÉ — drží stabilní install URL klientů. Smazání
+    rozbije instalaci/aktualizaci. Proto se kontroluje jejich existence při každém
+    promote a chybějící se doplní (self-healing po ručním smazání).
 
     Channel tag nese verzi Fenixu (RZP-10.1-alpha, RZP-10.11-alpha) — linie 10.1 a
     10.11 jsou tak fyzicky oddělené feedy s vlastní MSIX identitou. Version tag
@@ -20,7 +26,7 @@
     přístupu k Asseco LAN.
 
     Spouští se z .github/workflows/promote.yml (push na release-manifest.json),
-    nebo lokálně pro test/manuální promote.
+    nebo lokálně pro test/manuální promote / opravu smazaného channel release.
 
 .PARAMETER Repo
     owner/repo (default 'NEO-HEF/fenix-releases').
@@ -59,6 +65,10 @@ $manifest = Get-Content $ManifestPath -Raw | ConvertFrom-Json
 # gh preflight
 if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw "gh CLI nenalezen." }
 
+# Varovný banner v popisu KAŽDÉHO systémového release (channel i version tag).
+# Cíl: nikdo je omylem nesmaže — drží stabilní install URL / immutable artefakty.
+$SYSTEM_RELEASE_WARNING = '⚠️ POZOR — NEMAZAT — SYSTÉMOVÁ RELEASE ⚠️'
+
 function New-AppInstallerXml {
     param($IdName, $Publisher, $Arch, $Version, $SelfUrl, $MsixUrl)
     @"
@@ -79,6 +89,45 @@ function New-AppInstallerXml {
 "@
 }
 
+function Get-ChannelNotes {
+    param([string]$Module, [string]$FenixVer, [string]$Channel, [string]$Version)
+    $verLine = if ($Version) {
+        "Aktuální verze: $Version."
+    } else {
+        "Kanál zatím bez publikované verze (rezervovaný placeholder)."
+    }
+    @"
+$SYSTEM_RELEASE_WARNING
+
+Kanálový feed $Module / Fenix $FenixVer / $Channel.
+$verLine
+
+Spravováno automaticky (release-manifest.json + promote workflow). Stabilní install
+URL klientů míří na tento release — SMAZÁNÍ ROZBIJE INSTALACI A AUTOMATICKÉ
+AKTUALIZACE u klientů. Neměnit ručně; verze se řídí výhradně přes release-manifest.json.
+"@
+}
+
+# Zajistí existenci channel release + nastaví/obnoví warning popis (idempotentní).
+function Set-ChannelRelease {
+    param([string]$Tag, [string]$Title, [string]$Notes, [bool]$Prerelease, [string]$Repo, [switch]$WhatIf)
+    & gh release view $Tag --repo $Repo 2>&1 | Out-Null
+    $exists = ($LASTEXITCODE -eq 0)
+    if ($WhatIf) {
+        Write-Host "  [WhatIf] $(if ($exists) {'obnovit popis'} else {'VYTVOŘIT'}) systémový release $Tag" -ForegroundColor Yellow
+        return
+    }
+    if (-not $exists) {
+        $createArgs = @('release', 'create', $Tag, '--repo', $Repo, '--title', $Title, '--notes', $Notes)
+        if ($Prerelease) { $createArgs += '--prerelease' }
+        & gh @createArgs
+        if ($LASTEXITCODE -ne 0) { throw "gh release create $Tag selhal" }
+        Write-Host "  [+] doplněn chybějící systémový release $Tag" -ForegroundColor Green
+    } else {
+        & gh release edit $Tag --repo $Repo --title $Title --notes $Notes 2>&1 | Out-Null
+    }
+}
+
 $promoted = @()
 
 foreach ($fenixVer in $manifest.fenixVersions.PSObject.Properties.Name) {
@@ -96,18 +145,28 @@ foreach ($fenixVer in $manifest.fenixVersions.PSObject.Properties.Name) {
             if ($Channel -and $chName -ne $Channel) { continue }
             $entry = $mod.channels.$chName
             $version = $entry.version
+            $channelTag = "$modName-$fenixVer-$chName"      # RZP-10.1-alpha
+            $isPrerelease = ($chName -ne 'prod')
+            $relTitle = "$modName $fenixVer ($chName)"
+
+            # Sanity: Major.Minor verze musí sedět na klíč linie Fenixu.
+            if ($version) {
+                $verMajorMinor = ($version -split '\.')[0..1] -join '.'
+                if ($verMajorMinor -ne $fenixVer) {
+                    throw "Verze '$version' ($modName/$chName) nesedí na linii Fenixu '$fenixVer' (Major.Minor=$verMajorMinor). Oprav manifest."
+                }
+            }
+
+            # 1) VŽDY zajisti existenci systémového channel release + warning popis.
+            $notes = Get-ChannelNotes -Module $modName -FenixVer $fenixVer -Channel $chName -Version $version
+            Set-ChannelRelease -Tag $channelTag -Title $relTitle -Notes $notes -Prerelease $isPrerelease -Repo $Repo -WhatIf:$WhatIf
+
+            # 2) Prázdný kanál = jen rezervovaný placeholder (žádné assety).
             if (-not $version) {
-                Write-Host "[skip] $fenixVer/$modName/$chName — prázdný kanál (žádná version)" -ForegroundColor DarkGray
+                Write-Host "[ensure] $fenixVer/$modName/$chName — placeholder bez verze (žádné assety)" -ForegroundColor DarkGray
                 continue
             }
 
-            # Sanity: Major.Minor verze musí sedět na klíč linie Fenixu.
-            $verMajorMinor = ($version -split '\.')[0..1] -join '.'
-            if ($verMajorMinor -ne $fenixVer) {
-                throw "Verze '$version' ($modName/$chName) nesedí na linii Fenixu '$fenixVer' (Major.Minor=$verMajorMinor). Oprav manifest."
-            }
-
-            $channelTag = "$modName-$fenixVer-$chName"      # RZP-10.1-alpha
             $versionTag = "$modName-v$version"              # RZP-v10.1.6.0
             $downloadBase = "https://github.com/$Repo/releases/download/$channelTag"
             $appInstallerUrl = "$downloadBase/$modName.appinstaller"
@@ -123,35 +182,20 @@ foreach ($fenixVer in $manifest.fenixVersions.PSObject.Properties.Name) {
 
             $stageDir = New-Item -ItemType Directory -Force -Path (Join-Path ([System.IO.Path]::GetTempPath()) "promote-$(New-Guid)")
             try {
-                # 1. Stáhni MSIX z version tagu
+                # Stáhni MSIX z version tagu
                 & gh release download $versionTag --repo $Repo --pattern "$modName.msix" --dir $stageDir --clobber
                 if ($LASTEXITCODE -ne 0) {
-                    throw "Nelze stáhnout $modName.msix z $versionTag. Existuje version tag s podepsaným MSIX? (vytváří Build+Publish s -CreateVersionTag)"
+                    throw "Nelze stáhnout $modName.msix z $versionTag. Existuje version tag s podepsaným MSIX? (vytváří Publish-FenixRelease.ps1)"
                 }
                 $stageMsix = Join-Path $stageDir "$modName.msix"
 
-                # 2. Vygeneruj appinstaller
+                # Vygeneruj appinstaller
                 $xml = New-AppInstallerXml -IdName $idName -Publisher $publisher -Arch $arch `
                     -Version $version -SelfUrl $appInstallerUrl -MsixUrl $msixUrl
                 $stageAppInstaller = Join-Path $stageDir "$modName.appinstaller"
                 Set-Content -LiteralPath $stageAppInstaller -Value $xml -Encoding UTF8 -NoNewline
 
-                # 3. Channel release create/update
-                $isPrerelease = ($chName -ne 'prod')
-                $relTitle = "$modName $fenixVer ($chName)"
-                $relNotes = "Channel feed $modName / Fenix $fenixVer / $chName. Aktuální verze: $version."
-                & gh release view $channelTag --repo $Repo 2>&1 | Out-Null
-                if ($LASTEXITCODE -ne 0) {
-                    $createArgs = @('release', 'create', $channelTag, '--repo', $Repo,
-                                    '--title', $relTitle,
-                                    '--notes', $relNotes)
-                    if ($isPrerelease) { $createArgs += '--prerelease' }
-                    & gh @createArgs
-                    if ($LASTEXITCODE -ne 0) { throw "gh release create $channelTag selhal" }
-                } else {
-                    & gh release edit $channelTag --repo $Repo --notes $relNotes 2>&1 | Out-Null
-                }
-
+                # Nahraj assety na (už zajištěný) channel release
                 & gh release upload $channelTag $stageMsix $stageAppInstaller --repo $Repo --clobber
                 if ($LASTEXITCODE -ne 0) { throw "gh release upload na $channelTag selhal" }
 
@@ -167,7 +211,7 @@ foreach ($fenixVer in $manifest.fenixVersions.PSObject.Properties.Name) {
 Write-Host ""
 Write-Host "=== Promote summary ===" -ForegroundColor Cyan
 if ($promoted.Count -eq 0) {
-    Write-Host "  (nic nepublikováno)"
+    Write-Host "  (žádné assety nepublikovány — kanály jsou jen zajištěné/prázdné)"
 } else {
     $promoted | Format-Table FenixVersion, Module, Channel, Version, Url -AutoSize
 }
