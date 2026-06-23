@@ -4,22 +4,22 @@
 
 ### Nejjednodušší — instalační stránka
 
-Otevři **<https://neo-hef.github.io/fenix-releases/>**, vyber modul + kanál a klikni **Instalovat**.
+Otevři **<https://neo-hef.github.io/fenix-releases/>**, vyber **verzi Fenixu** (záložka, např. *Fenix 10.01*), pak **kanál** + modul a klikni **Instalovat**.
 Stránka nabízí i fallback (stáhnout `.appinstaller` + dvojklik) a PowerShell příkaz.
 
 ### Varianta A — PowerShell (spolehlivá)
 
 ```powershell
-Add-AppxPackage -AppInstallerFile "https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-prod/RZP.appinstaller"
+Add-AppxPackage -AppInstallerFile "https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-prod/RZP.appinstaller"
 ```
 
-(Pro testovací/pilotní kanál nahraď `RZP-prod` za `RZP-beta` nebo `RZP-alpha`.)
+URL nese **verzi Fenixu i kanál**: `RZP-<verze>-<kanál>`. Pro pilotní/testovací kanál nahraď `prod` za `beta`/`alpha`; pro jinou verzi Fenixu nahraď `10.1` za `10.11`.
 
 ### Varianta B — z prohlížeče
 
 Otevři URL v prohlížeči:
 ```
-https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-prod/RZP.appinstaller
+https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-prod/RZP.appinstaller
 ```
 
 > ⚠️ GitHub servíruje soubor jako `application/octet-stream`, takže prohlížeč ho nejspíš **stáhne** místo přímého spuštění App Installeru. Po stažení na `.appinstaller` soubor **dvojklik** → otevře se Windows App Installer → **Instalovat**.
@@ -36,11 +36,13 @@ Aktualizace probíhá **automaticky**. Při spuštění aplikace App Installer z
 | **beta** | pilotní uživatelé |
 | **alpha** | testeři |
 
-Přepnutí kanálu = reinstalace z jiné `.appinstaller` URL:
+Kanály patří **vždy do jedné verze Fenixu** (10.01, 10.11, …). Přepnutí kanálu v rámci téže verze = reinstalace z jiné `.appinstaller` URL:
 ```powershell
-Get-AppxPackage Asseco.Fenix.RZP | Remove-AppxPackage
-Add-AppxPackage -AppInstallerFile "https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-beta/RZP.appinstaller"
+Get-AppxPackage Asseco.Fenix.RZP.v10-1 | Remove-AppxPackage
+Add-AppxPackage -AppInstallerFile "https://github.com/NEO-HEF/fenix-releases/releases/download/RZP-10.1-beta/RZP.appinstaller"
 ```
+
+> **Přechod mezi verzemi Fenixu** (10.01 → 10.11) **není automatický** — různé verze mají odlišnou identitu (`.v10-1` vs `.v10-11`), takže se aplikace sama neupgraduje. Vyžaduje **migraci databázového schématu a reinstalaci všech modulů** podle pokynů dodavatele.
 
 ## Požadavky
 
