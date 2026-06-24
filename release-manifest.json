@@ -26,7 +26,7 @@
           "publisher": "CN=Asseco Solutions a.s., OU=Asseco Solutions a.s., O=Asseco Solutions a.s., L=Prague, C=CZ, SERIALNUMBER=64949541, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.3=CZ",
           "architecture": "x64",
           "channels": {
-            "alpha": { "version": "10.11.0.1" },
+            "alpha": {},
             "beta": {},
             "prod": {}
           }
