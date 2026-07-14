@@ -208,6 +208,97 @@ foreach ($fenixVer in $manifest.fenixVersions.PSObject.Properties.Name) {
     }
 }
 
+# ---------------------------------------------------------------------
+# Instalátor (Asseco.Fenix.Installer) — společný hromadný instalátor.
+# Instalátor NENÍ modul žádné linie Fenixu (viz 04-installer-design.md / Q7):
+# žije v top-level bloku 'installer' vedle 'fenixVersions', je version-agnostic
+# a má jediný kanál 'latest'. Distribuce: channel tag Installer-latest (NE
+# prerelease — je to prod-like nástroj), immutable version tag Installer-v<version>,
+# stabilní jména assetů Installer.msix / Installer.appinstaller. Znovupoužívá se
+# Set-ChannelRelease (self-healing + NEMAZAT) a New-AppInstallerXml (žádná nová logika).
+#
+# Filtry: protože je instalátor version-agnostic, spouštíme jeho promote jen když
+# NENÍ nastaven filtr -FenixVersion, NEBO byl explicitně předán -Module Installer
+# (aby cílený promote konkrétní verze/modulu instalátor omylem nepřepsal). Zároveň
+# ctíme -Module (jiný modul než 'Installer' → přeskočit) a -Channel (jiný kanál
+# než 'latest' → přeskočit).
+# ---------------------------------------------------------------------
+if ($manifest.installer -and
+    ((-not $FenixVersion) -or ($Module -eq 'Installer')) -and
+    ((-not $Module) -or ($Module -eq 'Installer')) -and
+    ((-not $Channel) -or ($Channel -eq 'latest'))) {
+
+    $inst          = $manifest.installer
+    $instIdName    = $inst.packageIdentityName
+    $instPublisher = $inst.publisher
+    $instArch      = if ($inst.architecture) { $inst.architecture } else { 'x64' }
+    $instVersion   = $inst.channels.latest.version
+    $instChannelTag = 'Installer-latest'
+    $instTitle      = 'Fenix Instalátor (latest)'
+
+    # 1) VŽDY zajisti existenci systémového channel release Installer-latest + warning popis.
+    $instVerLine = if ($instVersion) {
+        "Aktuální verze: $instVersion."
+    } else {
+        "Kanál zatím bez publikované verze (rezervovaný placeholder)."
+    }
+    $instNotes = @"
+$SYSTEM_RELEASE_WARNING
+
+Kanálový feed společného instalátoru (Asseco.Fenix.Installer) — nástroj NAD liniemi Fenixu.
+$instVerLine
+
+Spravováno automaticky (release-manifest.json + promote workflow). Stabilní install
+URL klientů míří na tento release — SMAZÁNÍ ROZBIJE INSTALACI A AUTOMATICKÉ
+AKTUALIZACE u klientů. Neměnit ručně; verze se řídí výhradně přes release-manifest.json.
+"@
+    # Instalátor je prod-like nástroj → NE prerelease.
+    Set-ChannelRelease -Tag $instChannelTag -Title $instTitle -Notes $instNotes -Prerelease $false -Repo $Repo -WhatIf:$WhatIf
+
+    if (-not $instVersion) {
+        # Prázdný kanál = jen rezervovaný placeholder (žádné assety).
+        Write-Host "[ensure] Installer/latest — placeholder bez verze (žádné assety)" -ForegroundColor DarkGray
+    } else {
+        $instVersionTag      = "Installer-v$instVersion"     # Installer-v1.0.0.0 (immutable version tag)
+        $instDownloadBase    = "https://github.com/$Repo/releases/download/$instChannelTag"
+        $instAppInstallerUrl = "$instDownloadBase/Installer.appinstaller"
+        $instMsixUrl         = "$instDownloadBase/Installer.msix"
+
+        Write-Host "=== Promote Instalátor $instVersion → latest ===" -ForegroundColor Cyan
+        Write-Host "  version tag: $instVersionTag  →  channel tag: $instChannelTag"
+
+        if ($WhatIf) {
+            Write-Host "  [WhatIf] download Installer.msix z $instVersionTag, regen appinstaller, upload na $instChannelTag" -ForegroundColor Yellow
+        } else {
+            $instStageDir = New-Item -ItemType Directory -Force -Path (Join-Path ([System.IO.Path]::GetTempPath()) "promote-$(New-Guid)")
+            try {
+                # Stáhni MSIX z immutable version tagu
+                & gh release download $instVersionTag --repo $Repo --pattern "Installer.msix" --dir $instStageDir --clobber
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Nelze stáhnout Installer.msix z $instVersionTag. Existuje version tag s podepsaným MSIX? (vytváří Publish-FenixRelease.ps1)"
+                }
+                $instStageMsix = Join-Path $instStageDir 'Installer.msix'
+
+                # Vygeneruj appinstaller (reuse New-AppInstallerXml — SelfUrl/MsixUrl míří na Installer-latest)
+                $instXml = New-AppInstallerXml -IdName $instIdName -Publisher $instPublisher -Arch $instArch `
+                    -Version $instVersion -SelfUrl $instAppInstallerUrl -MsixUrl $instMsixUrl
+                $instStageAppInstaller = Join-Path $instStageDir 'Installer.appinstaller'
+                Set-Content -LiteralPath $instStageAppInstaller -Value $instXml -Encoding UTF8 -NoNewline
+
+                # Nahraj oba assety na (už zajištěný) channel release Installer-latest
+                & gh release upload $instChannelTag $instStageMsix $instStageAppInstaller --repo $Repo --clobber
+                if ($LASTEXITCODE -ne 0) { throw "gh release upload na $instChannelTag selhal" }
+
+                Write-Host "  [OK] $instAppInstallerUrl" -ForegroundColor Green
+                # Syntetický FenixVersion label 'installer' — instalátor nepatří do žádné linie.
+                $promoted += [PSCustomObject]@{ FenixVersion = 'installer'; Module = 'Installer'; Channel = 'latest'; Version = $instVersion; Url = $instAppInstallerUrl }
+            } finally {
+                Remove-Item -Recurse -Force $instStageDir -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
 Write-Host ""
 Write-Host "=== Promote summary ===" -ForegroundColor Cyan
 if ($promoted.Count -eq 0) {

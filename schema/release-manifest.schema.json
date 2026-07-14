@@ -15,7 +15,8 @@
         "^\\d+\\.\\d+$": { "$ref": "#/definitions/fenixVersion" }
       },
       "additionalProperties": false
-    }
+    },
+    "installer": { "$ref": "#/definitions/installerBlock" }
   },
   "definitions": {
     "fenixVersion": {
@@ -75,6 +76,38 @@
           "type": "object",
           "description": "alpha/beta/prod v rámci této verze Fenixu. Prázdný objekt {} = kanál založen, ale modul tam zatím není publikovaný (promote ho přeskočí).",
           "propertyNames": { "enum": ["alpha", "beta", "prod"] },
+          "additionalProperties": { "$ref": "#/definitions/releaseEntry" }
+        }
+      }
+    },
+    "installerBlock": {
+      "type": "object",
+      "description": "Společný hromadný instalátor (Asseco.Fenix.Installer) — nástroj NAD verzními liniemi (viz 04-installer-design.md, Q7). NENÍ modul žádné linie: nežije pod fenixVersions a NEMÁ verzní suffix '.v<Major>-<Minor>'. Má jediný kanál 'latest'. Top-level property 'installer' je volitelná — dokud instalátor není publikovaný, blok chybí.",
+      "required": ["packageIdentityName", "publisher", "channels"],
+      "additionalProperties": false,
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Zobrazované jméno instalátoru BEZ verze Fenixu (na rozdíl od modulů 'Fenix RZP 10.01.000'). Typicky 'Fenix Instalátor'."
+        },
+        "packageIdentityName": {
+          "type": "string",
+          "pattern": "^Asseco\\.Fenix\\.Installer$",
+          "description": "MSIX Package Identity Name instalátoru — BEZ verzního suffixu '.v<Major>-<Minor>' (instalátor nepatří do žádné linie Fenixu). Navždy uzamčené na 'Asseco.Fenix.Installer'."
+        },
+        "publisher": {
+          "type": "string",
+          "description": "Subject DN code-signing certu (stejný EV cert jako moduly). Musí 1:1 odpovídat certu na Asseco signing serveru."
+        },
+        "architecture": {
+          "type": "string",
+          "enum": ["x64", "x86", "arm64"],
+          "default": "x64"
+        },
+        "channels": {
+          "type": "object",
+          "description": "Instalátor má jediný kanál 'latest' (žádné alpha/beta/prod — je to nástroj, ne produkt s testovacími liniemi). Prázdný objekt {} = kanál založen, ale instalátor tam zatím není publikovaný (promote ho přeskočí).",
+          "propertyNames": { "enum": ["latest"] },
           "additionalProperties": { "$ref": "#/definitions/releaseEntry" }
         }
       }
