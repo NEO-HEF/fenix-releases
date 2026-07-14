@@ -2,7 +2,21 @@
 
 ## Instalace
 
-### Nejjednodušší — instalační stránka
+### ⭐ Doporučeno — hromadný instalátor
+
+Nejjednodušší cesta pro **novou stanici**: otevři **<https://neo-hef.github.io/fenix-releases/>** a hned nahoře klikni na **Instalovat hromadný instalátor** (nebo **Stáhnout .appinstaller**, pokud tlačítko *Instalovat* nereaguje — viz *povolení protokolu* níže).
+
+Hromadný instalátor je jedna aplikace, která:
+
+- sama najde **dostupné moduly** podle zvolené **verze Fenixu** a **kanálu**,
+- umožní nainstalovat **jeden**, **vybrané** nebo **všechny moduly najednou**,
+- nainstalované moduly si pak dál drží **vlastní automatickou aktualizaci** (jako při ruční instalaci).
+
+Samotný instalátor se drží aktualizovaný přes feed **`Installer-latest`** (`https://github.com/NEO-HEF/fenix-releases/releases/download/Installer-latest/Installer.appinstaller`), takže máš vždy nejnovější verzi.
+
+Ruční instalace jednotlivých modulů níže (`.appinstaller` per modul, PowerShell) zůstává jako **pokročilá / záložní** varianta.
+
+### Nejjednodušší (ruční) — instalační stránka
 
 Otevři **<https://neo-hef.github.io/fenix-releases/>**, vyber **verzi Fenixu** (záložka, např. *Fenix 10.01*), pak **kanál** + modul a klikni **Instalovat**.
 Stránka nabízí i fallback (stáhnout `.appinstaller` + dvojklik) a PowerShell příkaz.
