@@ -71,10 +71,8 @@
   }
   .installer-hero .btn.lg { padding: 10px 20px; font-size: 0.95rem; }
   .installer-hero .hero-hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
+  .installer-hero .hero-hint + .hero-hint { margin-top: 8px; }
   .installer-hero .hero-hint a { color: var(--brand); }
-
-  .installer-intro { margin: 24px 0 2px; font-size: 0.95rem; color: var(--muted); }
-  .installer-intro strong { color: var(--text); }
 
   /* Top tabs (verze Fenixu + globální stránky) */
   nav.tabs {
@@ -248,35 +246,40 @@
 </nav>
 
 <main>
-  <!-- ⭐ Doporučený způsob instalace — hromadný instalátor.
-       Statická sekce nezávislá na manifestu: zobrazí se vždy, i když se seznam modulů nenačte. -->
-  <section class="installer-hero" aria-label="Doporučený hromadný instalátor">
-    <h2><span class="hero-tag">Doporučeno</span> ⭐ Hromadný instalátor</h2>
-    <p>Nejjednodušší způsob, jak nainstalovat Fenix. Jedna aplikace, která sama najde dostupné
-    moduly (podle zvolené verze Fenixu a kanálu) a umožní nainstalovat <strong>jeden</strong>,
-    <strong>vybrané</strong> nebo <strong>všechny moduly najednou</strong>. Nainstalované moduly
-    si pak dál drží vlastní automatickou aktualizaci. Doporučený první krok pro nové stanice.</p>
-    <div class="hero-actions">
-      <a class="btn primary lg" id="installer-install"
-         href="ms-appinstaller:?source=https%3A%2F%2Fgithub.com%2FNEO-HEF%2Ffenix-releases%2Freleases%2Fdownload%2FInstaller-latest%2FInstaller.appinstaller">Instalovat hromadný instalátor</a>
-      <a class="btn ghost lg" id="installer-download"
-         href="https://github.com/NEO-HEF/fenix-releases/releases/download/Installer-latest/Installer.appinstaller">Stáhnout .appinstaller</a>
-    </div>
-    <p class="hero-hint">Pokud tlačítko <strong>Instalovat</strong> nereaguje, viz
-    <a href="#navod" onclick="activate('navod'); return false;">Návod k instalaci → povolení
-    protokolu</a>, nebo použijte <strong>Stáhnout .appinstaller</strong> a soubor otevřete
-    dvojklikem (funguje vždy, bez jakéhokoli nastavení).</p>
-  </section>
-
-  <p class="installer-intro"><strong>Ruční / pokročilá instalace jednotlivých modulů.</strong>
-  Níže vyberte verzi Fenixu a kanál a nainstalujte konkrétní moduly samostatně.</p>
-
-  <!-- Verzní panely (generuje JS) -->
+  <!-- Verzní panely (generuje JS). Doporučený hromadný instalátor je na záložce „Návod k instalaci". -->
   <div id="version-panels"></div>
 
   <!-- Install instructions -->
   <section class="panel prose" id="panel-navod">
     <h2>Návod k instalaci</h2>
+
+    <!-- ⭐ Doporučený způsob instalace — hromadný instalátor.
+         Statická sekce nezávislá na manifestu; žije jen uvnitř záložky Návod, ať se neopakuje
+         na verzních záložkách. Odkazy nastaví wireInstallerHero() podle konstant. -->
+    <section class="installer-hero" aria-label="Doporučený hromadný instalátor">
+      <h2><span class="hero-tag">Doporučeno</span> ⭐ Hromadný instalátor</h2>
+      <p>Nejjednodušší způsob, jak nainstalovat Fenix. Jedna aplikace, která sama najde dostupné
+      moduly (podle zvolené verze Fenixu a kanálu) a umožní nainstalovat <strong>jeden</strong>,
+      <strong>vybrané</strong> nebo <strong>všechny moduly najednou</strong>. Nainstalované moduly
+      si pak dál drží vlastní automatickou aktualizaci. Doporučený první krok pro nové stanice.</p>
+      <div class="hero-actions">
+        <a class="btn primary lg" id="installer-install"
+           href="ms-appinstaller:?source=https%3A%2F%2Fgithub.com%2FNEO-HEF%2Ffenix-releases%2Freleases%2Fdownload%2FInstaller-latest%2FInstaller.appinstaller">Instalovat hromadný instalátor</a>
+        <a class="btn ghost lg" id="installer-download"
+           href="https://github.com/NEO-HEF/fenix-releases/releases/download/Installer-latest/Installer.appinstaller">Stáhnout .appinstaller</a>
+      </div>
+      <p class="hero-hint">Tlačítko <strong>Instalovat</strong> používá protokol
+      <code>ms-appinstaller:</code> — pokud nereaguje, je protokol vypnutý (viz
+      <a href="#povoleni-protokolu">Povolení protokolu</a> níže).</p>
+      <p class="hero-hint">Alternativa <strong>Stáhnout .appinstaller</strong> funguje, ale dvojklik
+      na stažený soubor spustí instalaci jen tehdy, když je přípona <code>.appinstaller</code>
+      přiřazená k aplikaci <strong>Instalátor aplikací</strong> (App Installer / Instalační služba
+      aplikací). Pokud dvojklik hlásí chybu, otevřete soubor ručně: pravým tlačítkem na stažený
+      soubor → <strong>Otevřít v programu</strong> (<em>Open with</em>) →
+      <strong>Zvolit jinou aplikaci</strong> → <strong>Instalátor aplikací</strong>; volitelně
+      zaškrtněte <em>Vždy používat tuto aplikaci pro .appinstaller</em>. Podrobný postup viz
+      <a href="#dvojklik-chyba">Dvojklik hlásí chybu</a> níže.</p>
+    </section>
 
     <h3>Verze Fenixu a kanály</h3>
     <p>Nejprve zvolte záložku <strong>verze Fenixu</strong> (např. <em>Fenix 10.01</em>), pak uvnitř
@@ -304,7 +307,7 @@
       aktualizuje, pokud je v rámci téže verze Fenixu k dispozici novější build.</li>
     </ol>
 
-    <h3>Dvojklik hlásí chybu — přípona <code>.appinstaller</code> není přiřazená</h3>
+    <h3 id="dvojklik-chyba">Dvojklik hlásí chybu — přípona <code>.appinstaller</code> není přiřazená</h3>
     <div class="note">
       <strong>Příznak:</strong> dvojklik na stažený soubor (např. <code>RZP.appinstaller</code>)
       skončí nepopisnou chybou typu <em>„Aplikaci RZP nelze otevřít"</em>. Windows neví, že soubor
@@ -360,7 +363,7 @@
     <p>Odinstalace odebere aplikaci i s jejím lokálním úložištěm (nastavení, cache). Sdílená data
     v databázi Fenix zůstávají nedotčena.</p>
 
-    <h3>Povolení protokolu „Instalovat" (ms-appinstaller)</h3>
+    <h3 id="povoleni-protokolu">Povolení protokolu „Instalovat" (ms-appinstaller)</h3>
     <p>Tlačítko <strong>Instalovat</strong> používá protokol <code>ms-appinstaller:</code>, který
     Microsoft z bezpečnostních důvodů od roku 2023 ve výchozím stavu vypíná. Na firemních počítačích
     ho povoluje IT skupinovou politikou (GPO):</p>
@@ -646,6 +649,8 @@
     } catch (e) {
       statusEl.className = "err";
       statusEl.textContent = `Nepodařilo se načíst seznam aplikací (${e.message}).`;
+      // I bez manifestu je záložka Návod (s doporučeným hromadným instalátorem) plně funkční.
+      activate("navod");
     }
   }
 
