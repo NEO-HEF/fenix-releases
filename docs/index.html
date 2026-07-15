@@ -618,10 +618,10 @@
     const validTabs = new Set([...keys.map(k => `v-${k}`), "navod", "pozadavky"]);
     const hash = location.hash.slice(1);
     if (validTabs.has(hash)) { activate(hash); return; }
-    // výchozí: první aktivní verze, jinak první verze, jinak Návod
-    const fv = MANIFEST.fenixVersions || {};
-    const active = keys.find(k => (fv[k].status || "") === "active");
-    activate(active ? `v-${active}` : (keys.length ? `v-${keys[0]}` : "navod"));
+    // výchozí po příchodu na web: záložka „Návod k instalaci" (obsahuje doporučený
+    // hromadný instalátor). Konkrétní verze Fenixu a kanály zůstávají dostupné přes
+    // záložky nahoře a přes #hash odkazy (např. #v-10.11).
+    activate("navod");
   }
 
   function setupStaticTabs() {
