@@ -421,6 +421,11 @@
       na Microsoft 365 Access Runtime.</li>
       <li><code>Microsoft.ACE.OLEDB.12.0</code> berte jako kompatibilní fallback pro stanice, kde už je
       tento provider k dispozici. Pro nové instalace preferujte <code>Microsoft.ACE.OLEDB.16.0</code>.</li>
+      <li><strong>ODBC DSN:</strong> nové moduly běží jako 64bitové, a proto používají výhradně 64bitové
+      ODBC ovladače a 64bitový seznam DSN. Na stanici proto musí být založená <strong>stejná 64bitová
+      ODBC DSN, jako jsou tam dosud 32bitová</strong> (stejné názvy zdrojů dat). 32bitová DSN vytvořená
+      v <code>C:\Windows\SysWOW64\odbcad32.exe</code> nejsou pro 64bitové moduly vidět — je nutné je
+      znovu založit i v 64bitovém správci ODBC (<code>C:\Windows\System32\odbcad32.exe</code>).</li>
     </ul>
 
     <h3>Podpis a důvěryhodnost</h3>
